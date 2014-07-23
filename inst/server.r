@@ -1964,7 +1964,7 @@ VAR_L1<-reactive({
   data<-L1()
   if(is.null(data)){return(NULL)}
   threshold=input$threshold_L1###number of data points needed to consider removal
-  save(data_pre,threshold,file="data.RData")###for debugging
+  #save(threshold,file="data_pre.RData")###for debugging
   #load("inst/data_pre.RData")###for debugging
   idx<-table(data$Customer)
   idx<-as.data.frame(idx)
