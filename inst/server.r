@@ -829,15 +829,26 @@ shinyServer(function(input, output, session) { # server is defined within these 
   })
   
   output$backcast_ahead_slider <- renderUI({
-    out1 <- sliderInput(inputId="backcast_ahead",
-                        label="How Many Days to Predict Ahead?",
-                        min=1,
-                        max=365,
-                        value=365,
-                        step=1                
+    datset <- FINAL()
+    datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]
+    preddat <- max(datset[["Date"]])
+    out1 <- dateInput(inputId="backcast_ahead",
+                      label= paste0("Predict from End of Historical Data (", preddat, ") to:"),
+                      min=preddat + 1,
+                      max=preddat + 365,
+                      value=preddat + 365                
     )
-    if (!is.null(Read_Settings()[["backcast_ahead"]])) updateSliderInput(session, inputId= "backcast_ahead", value = Read_Settings()[["backcast_ahead"]])
+    if (!is.null(Read_Settings()[["backcast_ahead"]])) updateDateInput(session, inputId= "backcast_ahead", value = Read_Settings()[["backcast_ahead"]])
     return(out1)
+  })
+  
+  pred_length <- reactive({
+    datset <- FINAL()
+    datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]
+    preddat <- max(datset[["Date"]])
+    out <- as.numeric(input$backcast_ahead - preddat)
+    return(out)
+    
   })
   
   output$backcast_length_slider <- renderUI({
@@ -2611,7 +2622,7 @@ L3<-reactive({
     predictors=input$predictors
     interaction_flag=input$interaction
     gamma=input$gamma##tuning parameter in fit
-    backcast_ahead=input$backcast_ahead ##Prediction length ahead 
+    backcast_ahead=pred_length() ##Prediction length ahead 
     pick=input$pick
     hold_out_data=0#amount of data to hold back for assessing model fit
     fixed=c()#172 is fuel
@@ -3841,33 +3852,14 @@ output$outlier_rpm_plot3<-renderPlot({
   
 })
 
-output$stop_table_current <- renderUI({
+output$mileage_table_current <- renderDataTable({
   datset <- FINAL()
   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
-  stopnames <- c("Lower Stop Count", "Upper Stop Count", "Avg RPM", "Avg Mileage")
-  startvals <- c(min(datset[["Stop_Count"]]),max(datset[["Stop_Count"]]),1,1)
-  stop_table<-data.frame(rbind(toupper(stopnames),startvals))
-  if (!is.null(Read_Settings()[["stop_table_current"]])){
-    stop_table<-data.frame(Read_Settings()[["stop_table_current"]])
-  }
-  
-  if((!is.null(input$stop_table_current)) && (nrow(input$stop_table_current) >= 2)){
-    valmatrix <- matrix(data = NA, nrow = nrow(input$stop_table_current) - 1, ncol = 4)
-    for (i in 2:nrow(input$stop_table_current)){
-      if(!(is.na(as.numeric(input$stop_table_current[i,1])) | is.na(as.numeric(input$stop_table_current[i,2])))){
-        valmatrix[i-1,1] <- max(as.numeric(input$stop_table_current[i,1]), startvals[1])
-        valmatrix[i-1,2] <- min(as.numeric(input$stop_table_current[i,2]), startvals[2])
-        avgsub <- which(datset[["Stop_Count"]] %in% c(valmatrix[i-1,1]:valmatrix[i-1,2]))
-        valmatrix[i-1,3] <- round(mean(datset[["RPM"]][avgsub]), digits = 3)
-        valmatrix[i-1,4] <- round(mean(datset[["Total_Mileage"]][avgsub]), digits = 1)
-      }
-    }
-    stop_table<-data.frame(rbind(toupper(stopnames),valmatrix))
-  }
-  
-  matrixCustom('stop_table_current', 'Rate and Mileage Between Stop Counts',stop_table)
-  ###you can access these values with input$stop_table3 as the variable anywhere in the server side file
-  
+  mileage <- datset[["Total_Mileage"]]
+  mileagesum <- summary(mileage)
+  out1 <- rbind(mileagesum[1:6])
+  colnames(out1) <- names(mileagesum[1:6])
+  return(out1)
 })
   
   output$lanes<-renderDataTable({
