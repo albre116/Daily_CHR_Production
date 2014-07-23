@@ -1,0 +1,6 @@
+path,category_code,data_type,path_desc,category_desc,data_type_desc
+ftd,BOPGS,IMP,US_Trade,Balance of Payment Goods Services,Imports: Millions of Dollars
+ftd,BOPG,IMP,US_Trade,Balance of Payment Goods,Imports: Millions of Dollars
+hv,RATE,SAHOR,Housing Ownership,Rate,Seasonally Adjusted Homeownership Rate: Percent
+hv,ESTIMATE,RNTOCC,Housing Ownership,Housing Inventory Estimate,Renter Occupied Housing Units: Thousands of Units
+hv,ESTIMATE,YRVAC,Housing Ownership,Housing Inventory Estimate,Year-Round Vacant Housing Units :Thousands of Units

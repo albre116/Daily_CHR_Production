@@ -1,0 +1,231 @@
+
+
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE, fig.width = 12, fig.height = 8}
+## utility function to add required assets such as CSS and JS libraries
+add_lib_assets <- function(lib, cdn = F, css = NULL) {
+    assets = get_assets(get_lib(lib), cdn = cdn)
+    if (!is.null(css)) {
+        assets$css = c(assets$css, css)
+    }
+    styles <- lapply(assets$css, function(style) {
+        sprintf("<link rel='stylesheet' href=%s>", style)
+    })
+
+    scripts <- lapply(assets$jshead, function(script) {
+        sprintf("<script type='text/javascript' src=%s></script>", script)
+    })
+    cat(paste(c(styles, scripts), collapse = "\n"))
+}
+
+
+add_lib_assets("highcharts", cdn = TRUE)
+
+
+```
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+
+  datin<-user_integ_vals()[["smooth_vals"]]
+  CI_labs<-colnames(datin)[3:4]
+  datadates <- datin[[1]]
+  idxx<-datin[[5]]=="observed"
+  histstart <- min(datadates[idxx])
+histend <- max(datadates[idxx])
+predstart <- min(datadates[!idxx])
+predend <- max(datadates[!idxx])
+lanename <- gsub("\\.", " ", gsub(".RPM","",input$response))
+
+```
+
+
+
+**Predictions for `r lanename` for `r input$quote_date[1]` to `r input$quote_date[2]`**
+
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+header1 <- NULL
+sub1 <- NULL
+
+if(input$report_quote_table == TRUE){
+
+header1 <- paste("<br><br>**Table of Rate Predictions and Historical Data for Quote Period for Previous Years**")
+
+
+sub1 <- paste0("The table below lists rate and volume summary values for the quote period from ", input$quote_date[1]," to ", input$quote_date[2], " for ", lanename, ". Historical values for the same quote period from previous years are also shown in the table for comparative purposes. All values in the table below except for the volume weighted average are calculated as the average of each daily value over the quote period. The volume weighted average is calculated by taking the sum of the daily rate per mile multiplied by the daily volume for the quote period. The resulting value is then divided by the total volume over the quote period to give the volume weighted average.")
+
+}
+```
+
+`r header1`
+
+`r sub1`
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+if(input$report_quote_table == TRUE){
+
+quotetable <- quote_hist()
+  knitr::kable(quotetable)
+
+}
+
+```
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+header2 <- NULL
+sub2 <- NULL
+
+if(input$report_rate_graph == TRUE){
+
+header2 <- paste("<br><br><br>**Plot of Rate Predictions and Historical Values**")
+
+
+sub2 <- paste0("The figure below displays the daily historical and predicted values for rate and volume for ", lanename, ". Historical data from ", histstart, " to ", histend, " and predcited values from ", predstart, " to ", predend, " are included in the graph below. The quote period from ", input$quote_date[1]," to ", input$quote_date[2], " is shown as a light blue shaded bar for the predicted year as well as all historical years in the dataset.")
+
+}
+```
+
+`r header2`
+
+`r sub2`
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+if(input$report_rate_graph == TRUE){
+  smooth_vals<-user_integ_vals()[["smooth_vals"]]
+  vol_vals<-user_integ_vals()[["vol_vals"]]
+  CI_labs<-colnames(smooth_vals)[3:4]
+  datevect <- smooth_vals[[1]]
+  seldate<-datevect>=input$quote_date[1] & datevect<=input$quote_date[2]
+  idxx<-smooth_vals[[5]]=="observed"
+  
+  datatrans <- matrix(NA,nrow=nrow(smooth_vals),ncol = 4)
+  idx<-smooth_vals[[5]]=="observed"
+  
+  datatrans[idx,1] <- smooth_vals[[2]][idx]
+  datatrans[!idx,2] <- smooth_vals[[2]][!idx]
+  datatrans[!idx,3] <- smooth_vals[[3]][!idx]
+  datatrans[!idx,4] <- smooth_vals[[4]][!idx]
+  datatrans <- data.frame(datevect,datatrans)
+  datatrans[,1] <- as.numeric(as.POSIXct((as.numeric(datatrans[,1])*1000*24*60*60), origin = "1970-01-01"))
+  colnames(datatrans) <- c("date","observed","predicted",CI_labs)
+  
+  datatrans2 <- matrix(NA,nrow=nrow(smooth_vals),ncol = 2)
+  datatrans2[idxx,1] <- vol_vals[[2]][idxx]
+  datatrans2[!idxx,2]<-as.numeric(input$matrix_volume[,3])
+  datatrans2 <- data.frame(datevect,datatrans2)
+  datatrans2[,1] <- as.numeric(as.POSIXct((as.numeric(datatrans2[,1])*1000*24*60*60), origin = "1970-01-01"))
+  colnames(datatrans2) <- c("date","Volume_observed","Volume_predicted")
+  
+  rateobs <- javalister(datatrans[idx,1:2])
+  ratepreds <- javalister(cbind(datatrans[!idx,1], datatrans[!idx,3]))
+  ratelcl <- javalister(cbind(datatrans[!idx,1], datatrans[!idx,4]))
+  rateucl <- javalister(cbind(datatrans[!idx,1], datatrans[!idx,5]))
+  volobs <- javalister(datatrans2[idxx,1:2])
+  volpreds <- javalister(cbind(datatrans2[!idxx,1], datatrans2[!idxx,3]))
+  
+  rpm <- smooth_vals[[2]][seldate]
+  volume <- vol_vals[[2]][seldate]
+  quote<-round(mean(rpm,na.rm=T),2)
+  quoteLCL <- round(mean(smooth_vals[[3]][seldate],na.rm=T),2)
+  quoteUCL <- round(mean(smooth_vals[[4]][seldate],na.rm=T),2)  
+  
+startdates <- c(as.POSIXlt(input$quote_date[[1]]), as.POSIXlt(input$quote_date[[2]]))
+datarange <- c(as.POSIXlt(min(smooth_vals[[1]])), as.POSIXlt(max(smooth_vals[[1]])))
+histdates <- c((datarange[1]$year- startdates[1]$year): (datarange[2]$year - startdates[2]$year))
+looprange <- startdates
+
+plotbands <- list()
+
+if(length(histdates) > 0){
+  for (i in 1:length(histdates)){
+    if(histdates[i] <= 0){  
+    looprange[1]$year = startdates[1]$year + histdates[i]
+      startjump <- looprange[1] - startdates[1]
+      looprange[2]$year = startdates[2]$year + histdates[i]
+      endjump <- looprange[2] - startdates[2]
+      if(input$quote_date[1] + startjump >= min(smooth_vals[[1]])){
+      plotbands[[length(plotbands)+1]] <- list(color='rgba(68, 170, 213, 0.2)',
+                                               from=as.numeric(as.POSIXct((as.numeric((input$quote_date[1] + startjump))*1000*24*60*60), origin = "1970-01-01")),
+                                               to=as.numeric(as.POSIXct((as.numeric((input$quote_date[2] + endjump))*1000*24*60*60), origin = "1970-01-01")))
+      }
+  }
+  }
+}
+
+    theGraph1 <- Highcharts$new()
+    theGraph1$chart(zoomType = "x", height=600)
+    theGraph1$xAxis(type = 'datetime', labels = list(format = '{value:%Y-%m-%d}'), title = list(text = "Date"),
+                   plotBands = plotbands)
+    theGraph1$yAxis(title = list(text = "Rate Per Mile"),labels = list(format = '${value}'))
+    theGraph1$yAxis(title=list(text='Volume'), opposite='true',replace=F)
+    theGraph1$addParams(dom = 'repgraph1')
+  theGraph1$series(name = 'Observed Volume', type = 'line', data = volobs, yAxis = 1, turboThreshold = length(volobs), marker = list(enabled = FALSE), lineWidth = 0.5)
+  theGraph1$series(name = 'Predicted Volume', type = 'line', data = volpreds, yAxis = 1, turboThreshold = length(volpreds), marker = list(enabled = FALSE), lineWidth = 0.5)
+  theGraph1$series(name = 'Observed Rate', type = 'line', data = rateobs, yAxis = 0, turboThreshold = length(rateobs), marker = list(enabled = FALSE))
+  theGraph1$series(name = 'Predicted Rate', type = 'line', data = ratepreds, yAxis = 0, turboThreshold = length(ratepreds), marker = list(enabled = FALSE))
+  theGraph1$series(name = CI_labs[[1]], type = 'line', data = ratelcl, yAxis = 0, turboThreshold = length(ratelcl), marker = list(enabled = FALSE))
+  theGraph1$series(name = CI_labs[[2]], type = 'line', data = rateucl, yAxis = 0, turboThreshold = length(rateucl), marker = list(enabled = FALSE))
+  
+  theGraph1$show('inline', include_assets = TRUE, cdn = TRUE)
+
+}
+```
+
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+header3 <- NULL
+
+if(input$report_rate_graph == TRUE){
+
+header3 <- paste("<br><br><br><br><br><br><br><br><br>")
+
+
+}
+
+
+```
+
+`r header3`
+
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+header4 <- NULL
+sub4 <- NULL
+if(input$report_historic_graph == TRUE){
+
+header4 <- paste("<br><br><br>**Plot of Historical Quotes**")
+
+
+
+
+sub4 <- paste0("The figure below shows rate and volume summary values for the quote period from ", input$quote_date[1]," to ", input$quote_date[2], " for ", lanename, ". Historical values for the same quote period from previous years are also shown in the figure for comparative purposes. All values in the figure below except for the volume weighted average are calculated as the average of each daily value over the quote period. The volume weighted average is calculated by taking the sum of the daily rate per mile multiplied by the daily volume for the quote period. The resulting value is then divided by the total volume over the quote period to give the volume weighted average.")
+
+}
+```
+
+`r header4`
+
+`r sub4`
+ 
+```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
+if(input$report_historic_graph == TRUE){
+
+  quotetable <- quote_hist()
+  graphset <- rbind(quotetable[1,], quotetable[4:nrow(quotetable),])
+  graphset[1,1] <- paste(substr(graphset[1,5],0,4), "Predicted")
+  graphset <- graphset[rev(rownames(graphset)),]
+
+  theGraph2 <- Highcharts$new()
+  theGraph2$chart(zoomType = "x", height=600)
+  theGraph2$xAxis(categories = graphset[,1])
+  theGraph2$yAxis(title = list(text = "Rate Per Mile"),labels = list(format = '${value}'))
+  theGraph2$yAxis(title=list(text='Volume'), opposite='true',replace=F)
+  theGraph2$addParams(dom = 'repgraph2')
+  theGraph2$series(name = 'Volume', type = 'column', data = as.numeric(graphset[,4]), yAxis = 1)
+  theGraph2$series(name = 'Rate', type = 'line', data = as.numeric(graphset[,3]), dashStyle = 'LongDash', yAxis = 0)
+  theGraph2$series(name = 'Volume Weighted Average', type = 'line', data = as.numeric(graphset[,2]), yAxis = 0)
+
+  theGraph2$show('inline', include_assets = TRUE, cdn = TRUE)
+
+}
+```
+ 
