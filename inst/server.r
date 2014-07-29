@@ -3852,10 +3852,25 @@ output$outlier_rpm_plot3<-renderPlot({
   
 })
 
+output$mileagedate<-renderUI({
+  datset <- FINAL()
+  datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
+  
+  a=min(datset$Date)
+  b=max(datset$Date)
+  out1 <- dateRangeInput("mileagedate", "Date Cutoff Ranges for Mileage Summary:", 
+                         start =a, end =b )
+  if (!is.null(Read_Settings()[["mileagedate"]])) updateDateRangeInput(session, inputId= "mileagedate", start = Read_Settings()[["mileagedate"]][1], end = Read_Settings()[["mileagedate"]][2])
+  return(out1)
+})
+
+
 output$mileage_table_current <- renderDataTable({
   datset <- FINAL()
   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
-  mileage <- datset[["Total_Mileage"]]
+  idx1<-datset[["Date"]]>=input$mileagedate[1] & datset[["Date"]]<=input$mileagedate[2]
+  
+  mileage <- datset[["Total_Mileage"]][idx1]
   mileagesum <- summary(mileage)
   out1 <- rbind(mileagesum[1:6])
   colnames(out1) <- names(mileagesum[1:6])
@@ -4180,6 +4195,8 @@ user_integ_vals <- reactive({
 quote_hist<-reactive({
   smooth_vals<-user_integ_vals()[["smooth_vals"]]
   vol_vals<-user_integ_vals()[["vol_vals"]]
+  datset <- FINAL()
+  datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
   datevect <- smooth_vals[[1]]
   idx<-datevect>=input$quote_date[1] & datevect<=input$quote_date[2]
   userdatesel <- input$matrix_volume[,1] >=input$quote_date[1] & input$matrix_volume[,1]<=input$quote_date[2]
@@ -4209,8 +4226,8 @@ quote_hist<-reactive({
   enddate <- as.character(input$quote_date[2])
   
   volavg<-round(mean(volume,na.rm=T),2)
-  quotetable <- data.frame(c("Mean", CI_labs[2], CI_labs[1]),c(intquote,intquoteUCL,intquoteLCL),c(rateavg,rateavgUCL,rateavgLCL),c(volavg,NA,NA), c(startdate, startdate, startdate), c(enddate, enddate, enddate), stringsAsFactors = FALSE)
-  colnames(quotetable) <- c("Value Type", "Volume Weighted RPM", "Rate per Mile", "Volume", "Start Date", "End Date")
+  quotetable <- data.frame(c("Mean", CI_labs[2], CI_labs[1]),c(intquote,intquoteUCL,intquoteLCL),c(rateavg,rateavgUCL,rateavgLCL),c(volavg,NA,NA), c(NA,NA,NA), c(startdate, startdate, startdate), c(enddate, enddate, enddate), stringsAsFactors = FALSE)
+  colnames(quotetable) <- c("Value Type", "Volume Weighted RPM", "Rate per Mile", "Volume", "Average Total Mileage", "Start Date", "End Date")
   
   startdates <- c(as.POSIXlt(input$quote_date[[1]]), as.POSIXlt(input$quote_date[[2]]))
   datarange <- c(as.POSIXlt(min(smooth_vals[[1]])), as.POSIXlt(max(smooth_vals[[1]])))
@@ -4227,23 +4244,28 @@ quote_hist<-reactive({
         if(input$quote_date[1] + startjump >= min(smooth_vals[[1]])){
           
           idx<-datevect>=(input$quote_date[1] + startjump) & datevect<=(input$quote_date[2] + endjump)
+          idx1<-datset[["Date"]]>=(input$quote_date[1] + startjump) & datset[["Date"]]<=(input$quote_date[2] + endjump)
+          
           smooth_vals_short <- smooth_vals[idx,]
           vol_vals_short <- vol_vals[idx,]
+          mileagevect <- datset[["Total_Mileage"]][idx1]
           
           rpm <- smooth_vals_short[[2]]
           volume <- vol_vals_short[[2]]
           intquote<-round(sum(rpm*volume,na.rm=T)/sum(volume,na.rm=T),2)
           rateavg<-round(mean(rpm,na.rm=T),2)
           volavg<-round(mean(volume,na.rm=T),2)
+          avgmileage <- round(mean(mileagevect,na.rm=T),0)
           
           startdate <- as.character(input$quote_date[1] + startjump)
           enddate <- as.character(input$quote_date[2] + endjump)
           
-          quotetable <- rbind(quotetable, c(paste(looprange[1]$year + 1900, "Historical"), intquote, rateavg, volavg, startdate, enddate))
+          quotetable <- rbind(quotetable, c(paste(looprange[1]$year + 1900, "Historical"), intquote, rateavg, volavg, avgmileage, startdate, enddate))
         }
       }
     }
   }
+  
   return(quotetable)
   
 })
