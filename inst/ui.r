@@ -96,9 +96,9 @@ shinyUI(fluidPage(
                                                          uiOutput("RPM_lower1")),
                                                 tags$div(title = "Choose upper rate per mile boundary. Defaults to 5.",
                                                          uiOutput("RPM_upper1")),
-                                                tags$div(title = "Select carriers to remove from lane data. Carriers are sorted by TBD",
+                                                tags$div(title = "Select customers to remove from lane data. Carriers are sorted by TBD",
                                                 uiOutput("L1_CLEANUP")),
-                                                tags$div(title = "Attempt to reuse partial data from eliminated carriers?",
+                                                tags$div(title = "Attempt to reuse partial data from eliminated customers?",
                                                 checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=TRUE)),
                                                 checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
                                                 tags$div(title = "Minimum number of datapoints that a single carrier must have to be considered for outlier removal",
@@ -214,7 +214,8 @@ shinyUI(fluidPage(
                                                           h4("Select Lane Descriptions"),uiOutput("lane_chooser"),
                                                           h4("Select Origin State"),uiOutput("orig_state"),
                                                           h4("Select Delivery Region"),uiOutput("delivery_region"),
-                                                          h4("Select Customer or Carrier"),uiOutput("customer")
+                                                          h4("Select Customer"),uiOutput("customer"),
+                                                          h4("Select Carrier"),uiOutput("carrier")
                                                    ))),value="data_load"),
                                                    tabPanel("Selected Data",dataTableOutput("selected_data"),value="selected_data"),
                                                    tabPanel("Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot")),

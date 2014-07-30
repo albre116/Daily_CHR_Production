@@ -113,7 +113,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$load_region<-renderUI({
     chooserInput("load_region", "Available", "Selected",
-                 choices()[-12], choices()[12], size = 10, multiple = TRUE
+                 choices()[-13], choices()[13], size = 10, multiple = TRUE
     )
     
   })
@@ -127,7 +127,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$delivery_region<-renderUI({
     chooserInput("delivery_region", "Available", "Selected",
-                 choices()[-14], choices()[14], size = 10, multiple = TRUE
+                 choices()[-15], choices()[15], size = 10, multiple = TRUE
     )
     
   })
@@ -135,6 +135,13 @@ shinyServer(function(input, output, session) { # server is defined within these 
   output$customer<-renderUI({
     chooserInput("customer", "Available", "Selected",
                  choices()[-26], choices()[26], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$carrier<-renderUI({
+    chooserInput("carrier", "Available", "Selected",
+                 choices()[-32], choices()[32], size = 10, multiple = TRUE
     )
     
   })
@@ -1899,7 +1906,8 @@ CHR<-reactive({
     Load_Region=Data()[,colnames(Data()) %in% input$load_region$right],
     Delivery_State=Data()[,colnames(Data()) %in% input$delivery_state$right],
     Delivery_Region=Data()[,colnames(Data()) %in% input$delivery_region$right],
-    Customer=Data()[,colnames(Data()) %in% input$customer$right])
+    Customer=Data()[,colnames(Data()) %in% input$customer$right],
+    Carrier=Data()[,colnames(Data()) %in% input$carrier$right])
   CHR$Date<-as.POSIXlt((CHR$Date-1)*24*60*60,origin="1900-01-01")
   CHR$Date<-format(CHR$Date,format="%m/%d/%Y")
   CHR$Date<-as.Date(CHR$Date,format="%m/%d/%Y")
@@ -2005,7 +2013,7 @@ VAR_L1<-reactive({
 output$L1_CLEANUP<-renderUI({
   idx<-VAR_L1()[["idx"]]
   choices<-idx$Var1
-  selectizeInput("L1_CLEANUP","Select Carrier Data To Remove",choices=choices,multiple=TRUE)
+  selectizeInput("L1_CLEANUP","Select Customer Data To Remove",choices=choices,multiple=TRUE)
 })
 
 
@@ -2652,10 +2660,10 @@ L3<-reactive({
     take_out<-!is.na(apply(x[response],1,mean))
     x<-x[take_out,]
     date<-date[take_out]
-    
     ####Use the carry-forward rule to fill missing values###
     for (s in consider[-1]){
-      x[is.na(x[,s]),s]=x[max(which(!is.na(x[,s]))),s]
+      x[cumsum(!is.na(x[,s]))==0,s]=x[min(which(!is.na(x[,s]))),s]###left hand side
+      x[is.na(x[,s]),s]=x[max(which(!is.na(x[,s]))),s]###right hand side
     }
     
     
