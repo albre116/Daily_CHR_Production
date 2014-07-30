@@ -96,15 +96,24 @@ shinyUI(fluidPage(
                                                          uiOutput("RPM_lower1")),
                                                 tags$div(title = "Choose upper rate per mile boundary. Defaults to 5.",
                                                          uiOutput("RPM_upper1")),
-                                                tags$div(title = "Select customers to remove from lane data. Carriers are sorted by TBD",
+                                                checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
+                                                tags$div(title = "Select customers to remove from lane data. Customers are sorted by Bias",
                                                 uiOutput("L1_CLEANUP")),
                                                 tags$div(title = "Attempt to reuse partial data from eliminated customers?",
                                                 checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=TRUE)),
-                                                checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
-                                                tags$div(title = "Minimum number of datapoints that a single carrier must have to be considered for outlier removal",
+                                                tags$div(title = "Minimum number of datapoints that a single customer must have to be considered for outlier removal",
                                                 numericInput("threshold_L1","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
+                                                tags$div(title = "Customers with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
+                                                numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1)),
+                                                
+                                                tags$div(title = "Select carriers to remove from lane data. Carriers are sorted by Bias",
+                                                         uiOutput("L1_CLEANUP_CARRIER")),
+                                                tags$div(title = "Attempt to reuse partial data from eliminated customers?",
+                                                         checkboxInput("salvage_L1_CARRIER","Try To Salvage Partial Data?",value=TRUE)),
+                                                tags$div(title = "Minimum number of datapoints that a single carrier must have to be considered for outlier removal",
+                                                         numericInput("threshold_L1_CARRIER","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
                                                 tags$div(title = "Carriers with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
-                                                numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1))
+                                                         numericInput("ratio_cut_L1_CARRIER","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1))
                                ),
                                conditionalPanel(condition="input.navbar1=='panel1' & input.navbar11=='stop_count_modeling_L1'",
                                                 tags$div(title = "A very high number of splits should generally be avoided", uiOutput("tree_select_nsplit_L1")),tags$div(title = "Adjust model to account for stop count groupings shown in the stop count model tree", uiOutput("tree_adjust_L1"))
@@ -233,7 +242,8 @@ shinyUI(fluidPage(
                                                           h4("Select Delivery Regions to Include"),uiOutput("l1_delivery_region")
                                                    ))),value="lane_1_construct"),
                                                    tabPanel("Lane 1 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot1")),
-                                                                                        fluidRow(dataTableOutput("outlier_rpm1")))
+                                                                                        fluidRow(h3("Customer Data to Screen"),dataTableOutput("L1_CUSTOMERS")),
+                                                                                        fluidRow(h3("Carrier Data to Screen"),dataTableOutput("L1_CARRIER")))
                                                             ,value="outlier1"),
                                                    tabPanel("Lane 1 Stop Count Model",h3("Tree of Optimal Stop Count Effect (smallest stop is reference level)"),plotOutput("stop_cluster_L1"),h3("Cross Validation Error Plot to Identify Optimal Number of Tree Splits"),
                                                             plotOutput("tree_splits_L1"),h3("Data Table of Cluster Results"),dataTableOutput("stop_table_L1"),value="stop_count_modeling_L1"),

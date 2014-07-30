@@ -2017,6 +2017,11 @@ output$L1_CLEANUP<-renderUI({
 })
 
 
+output$L1_CUSTOMERS<-renderDataTable({
+  VAR_L1()[["idx"]]
+})
+
+
 SELECT_L1<-reactive({
   data<-VAR_L1()[["data"]]
   idx<-VAR_L1()[["idx"]]
@@ -2024,7 +2029,7 @@ SELECT_L1<-reactive({
   choices<-input$L1_CLEANUP
   ratio_cut<-input$ratio_cut_L1###this will let you identify the data to pull
   salvage=input$salvage_L1
-  save(data,idx,comp_var,choices,ratio_cut,salvage,file="data_1.RData")###for debugging
+  #save(data,idx,comp_var,choices,ratio_cut,salvage,file="data_1.RData")###for debugging
   #load("inst/data_1.RData")###for debugging
   if (is.null(choices)){return(list(data=data,data_remove=NULL,data_preserve=NULL))}
   if (!salvage){
@@ -2092,9 +2097,133 @@ SELECT_L1<-reactive({
 
 
 
+VAR_L1_CARRIER<-reactive({
+  data<-SELECT_L1()[["data"]]
+  if(is.null(SELECT_L1())){return(NULL)}
+  threshold=input$threshold_L1_CARRIER###number of data points needed to consider removal
+  #save(threshold,file="data_pre.RData")###for debugging
+  #load("inst/data_pre.RData")###for debugging
+  idx<-table(data$Carrier)
+  idx<-as.data.frame(idx)
+  idx<-idx[idx$Freq!=0,]
+  
+  
+  data$days=as.numeric(format(data$Date,"%j"))
+  data$Date_2<-as.numeric(data$Date)
+  adjust_fit<-gam(RPM~s(Date_2,sp=1000)+s(days,bs="cc"),data=data,gamma=1.4)
+  data$residuals<-residuals(adjust_fit)
+  comp_var<-sd(data$residuals)
+  
+  idx$l1_bias<-NA###looking for bias turned out to be the best methodology
+  idx_e<-1:nrow(idx)
+  idx_e<-idx_e[idx$Freq>=threshold]
+  for(i in idx_e){
+    print(i)
+    pull<-data$residuals[data$Carrier==idx$Var1[i]]
+    idx$l1_bias[i]<-abs(sum(pull^2)/length(pull))
+  }
+  
+  
+  idx<-idx[order(idx$l1_bias,decreasing = T),]###look for bias where data isn't centered
+  list(idx=idx,data=data,comp_var=comp_var)
+})
+
+output$L1_CLEANUP_CARRIER<-renderUI({
+  idx<-VAR_L1_CARRIER()[["idx"]]
+  choices<-idx$Var1
+  selectizeInput("L1_CLEANUP_CARRIER","Select Carrier Data To Remove",choices=choices,multiple=TRUE)
+})
+
+
+output$L1_CARRIER<-renderDataTable({
+  VAR_L1_CARRIER()[["idx"]]
+})
+
+
+SELECT_L1_CARRIER<-reactive({
+  data<-VAR_L1_CARRIER()[["data"]]
+  idx<-VAR_L1_CARRIER()[["idx"]]
+  comp_var<-VAR_L1_CARRIER()[["comp_var"]]
+  data_remove_pst<-SELECT_L1()[["data_remove"]]
+  data_preserve_pst<-SELECT_L1()[["data_preserve"]]
+  choices<-input$L1_CLEANUP_CARRIER
+  ratio_cut<-input$ratio_cut_L1_CARRIER###this will let you identify the data to pull
+  salvage=input$salvage_L1_CARRIER
+  #save(data,idx,comp_var,choices,ratio_cut,salvage,file="data_1.RData")###for debugging
+  #load("inst/data_1.RData")###for debugging
+  if (is.null(choices)){
+    data_remove<-data_remove_pst
+    data_preserve<-data_preserve_pst
+    return(list(data=data,data_remove=data_remove,data_preserve=data_preserve))}
+  if (!salvage){
+    index_data<-data$Carrier %in% choices
+    data_remove<-data[index_data,]
+    data<-data[!index_data,]
+    return(list(data=data,data_remove=data_remove,data_preserve=NULL))
+  }
+  data_remove<-data.frame()
+  data_preserve<-data.frame()
+  for (j in 1:length(choices)){
+    index_data<-data$Carrier %in% choices[j]
+    tmp<-data[index_data,]
+    #plot(RPM~Date,data=tmp)
+    fit<-rpart(RPM~Date_2,data=tmp,
+               control=rpart.control(xval=10,minbucket=10,cp=0))
+    select<-printcp(fit)
+    upper_bound=select[,"xerror"]+select[,"xstd"]
+    take<-numeric(length(upper_bound))
+    take[1]=1
+    for(i in 2:length(upper_bound)){
+      pp<-min(upper_bound[1:i])-select[1:(i-1),"xerror"]
+      take[i]<-all(pp<=0)
+    }
+    grab<-1:nrow(select)
+    grab<-max(grab[take==1])
+    cp_min<-select[grab,"CP"]
+    tree<-prune(fit,cp=cp_min)
+    #   prp(tree,type=4,extra=1,tweak=1.0,branch=1,fallen.leaves=F,
+    #       uniform=T,Margin=0,digits=3,varlen=0)
+    
+    
+    levels<-factor(predict(tree))
+    levels<-factor(as.numeric(levels))
+    levels<-as.numeric(levels)
+    for (i in unique(levels)){
+      q_dat<-tmp$RPM[levels==i]
+      out<-kmeans(q_dat,2)
+      levels[levels==i]=out$cluster+max(levels)
+    }
+    
+    levels<-factor(levels)
+    levels(levels)<-1:length(levels(levels))
+    variance_groups<-numeric(length(levels(levels)))
+    for (i in levels(levels)){
+      variance_groups[as.numeric(i)]<-sd(tmp$RPM[levels==i])
+    }
+    
+    ratio<-comp_var/variance_groups
+    kill<-(ratio>=ratio_cut)
+    remove<-levels %in% levels(levels)[kill]
+    index_data[index_data==TRUE]<-remove
+    data<-data[!index_data,]
+    data_remove<-rbind(data_remove,tmp[remove,])
+    data_preserve<-rbind(data_preserve,tmp[!remove,])
+    #plot(RPM~Date,data=tmp[remove,],col="red",pch=19)
+    #points(RPM~Date,data=tmp[!remove,],col="black",pch=19)
+  }
+  
+  data_remove<-rbind(data_remove,data_remove_pst)
+  data_preserve<-rbind(data_preserve,data_preserve_pst)
+  
+  list(data=data,data_remove=data_remove,data_preserve=data_preserve)
+  
+})
+
+
+
 
 CLUSTER_PRE_L1<-reactive({
-  data<-SELECT_L1()[["data"]]
+  data<-SELECT_L1_CARRIER()[["data"]]
   data$days=as.numeric(format(data$Date,"%j"))
   data$Date<-as.numeric(data$Date)
   adjust_fit<-gam(RPM~s(Date,sp=1000)+s(days,bs="cc"),data=data)
@@ -2195,7 +2324,7 @@ output$stop_table_L1<-renderDataTable({
 })
 
 L1_adjust<-reactive({
-  L1<-SELECT_L1()[["data"]]
+  L1<-SELECT_L1_CARRIER()[["data"]]
   if(input$tree_adjust_L1==TRUE){
     tree<-CLUSTER_L1()[["tree"]]
     effect<-predict(tree,L1)
@@ -3694,16 +3823,16 @@ output$stop_table1 <- renderUI({
 })
 
 output$outlier_rpm1<-renderDataTable({
-  SELECT_L1()[["data"]]
+  SELECT_L1_CARRIER()[["data"]]
   
 })
 
 output$outlier_rpm_plot1<-renderPlot({
-  if(!is.null(SELECT_L1())){
-    dat=SELECT_L1()[["data"]]
-    remove=SELECT_L1()[["data_remove"]]
+  if(!is.null(SELECT_L1_CARRIER())){
+    dat=SELECT_L1_CARRIER()[["data"]]
+    remove=SELECT_L1_CARRIER()[["data_remove"]]
     if (empty(remove)){remove=NULL}
-    preserve=SELECT_L1()[["data_preserve"]]
+    preserve=SELECT_L1_CARRIER()[["data_preserve"]]
     if(empty(preserve)){preserve=NULL}
     dat$series="NonSelected"
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
