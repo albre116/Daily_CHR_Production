@@ -214,7 +214,7 @@ shinyUI(fluidPage(
                                                           h4("Select Lane Descriptions"),uiOutput("lane_chooser"),
                                                           h4("Select Origin State"),uiOutput("orig_state"),
                                                           h4("Select Delivery Region"),uiOutput("delivery_region"),
-                                                          h4("Select Customer"),uiOutput("customer")
+                                                          h4("Select Customer or Carrier"),uiOutput("customer")
                                                    ))),value="data_load"),
                                                    tabPanel("Selected Data",dataTableOutput("selected_data"),value="selected_data"),
                                                    tabPanel("Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot")),

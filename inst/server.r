@@ -63,7 +63,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$stop_chooser<-renderUI({
     chooserInput("stop", "Available", "Selected",
-                 choices()[-18],choices()[18], size = 10, multiple = TRUE
+                 choices()[-24],choices()[24], size = 10, multiple = TRUE
     )
     
   })
@@ -71,21 +71,21 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$cost_chooser<-renderUI({
     chooserInput("cost", "Available", "Selected",
-                 choices()[-28], choices()[28], size = 10, multiple = TRUE
+                 choices()[-34], choices()[34], size = 10, multiple = TRUE
     )
     
   })
   
   output$mileage_chooser<-renderUI({
     chooserInput("mileage", "Available", "Selected",
-                 choices()[-24], choices()[24], size = 10, multiple = TRUE
+                 choices()[-29], choices()[29], size = 10, multiple = TRUE
     )
     
   })
   
   output$destination_chooser<-renderUI({
     chooserInput("destination", "Available", "Selected",
-                 choices()[-9], choices()[9], size = 10, multiple = TRUE
+                 choices()[-7], choices()[7], size = 10, multiple = TRUE
     )
     
   })
@@ -99,42 +99,42 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$lane_chooser<-renderUI({
     chooserInput("lane_choices", "Available", "Selected",
-                 choices()[-13], choices()[13], size = 10, multiple = TRUE
+                 choices(), NULL, size = 10, multiple = TRUE
     )
     
   })
   
   output$orig_state<-renderUI({
     chooserInput("orig_state", "Available", "Selected",
-                 choices()[-8], choices()[8], size = 10, multiple = TRUE
+                 choices()[-9], choices()[9], size = 10, multiple = TRUE
     )
     
   })
   
   output$load_region<-renderUI({
     chooserInput("load_region", "Available", "Selected",
-                 choices()[-7], choices()[7], size = 10, multiple = TRUE
+                 choices()[-12], choices()[12], size = 10, multiple = TRUE
     )
     
   })
   
   output$delivery_state<-renderUI({
     chooserInput("delivery_state", "Available", "Selected",
-                 choices()[-10], choices()[10], size = 10, multiple = TRUE
+                 choices()[-11], choices()[11], size = 10, multiple = TRUE
     )
     
   })
   
   output$delivery_region<-renderUI({
     chooserInput("delivery_region", "Available", "Selected",
-                 choices()[-11], choices()[11], size = 10, multiple = TRUE
+                 choices()[-14], choices()[14], size = 10, multiple = TRUE
     )
     
   })
   
   output$customer<-renderUI({
     chooserInput("customer", "Available", "Selected",
-                 choices()[-20], choices()[20], size = 10, multiple = TRUE
+                 choices()[-26], choices()[26], size = 10, multiple = TRUE
     )
     
   })
