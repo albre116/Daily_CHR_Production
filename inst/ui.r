@@ -96,24 +96,17 @@ shinyUI(fluidPage(
                                                          uiOutput("RPM_lower1")),
                                                 tags$div(title = "Choose upper rate per mile boundary. Defaults to 5.",
                                                          uiOutput("RPM_upper1")),
-                                                checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
-                                                tags$div(title = "Select customers to remove from lane data. Customers are sorted by Bias",
-                                                uiOutput("L1_CLEANUP")),
-                                                tags$div(title = "Attempt to reuse partial data from eliminated customers?",
-                                                checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=TRUE)),
-                                                tags$div(title = "Minimum number of datapoints that a single customer must have to be considered for outlier removal",
-                                                numericInput("threshold_L1","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
-                                                tags$div(title = "Customers with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
-                                                numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1)),
                                                 
-                                                tags$div(title = "Select carriers to remove from lane data. Carriers are sorted by Bias",
-                                                         uiOutput("L1_CLEANUP_CARRIER")),
-                                                tags$div(title = "Attempt to reuse partial data from eliminated customers?",
-                                                         checkboxInput("salvage_L1_CARRIER","Try To Salvage Partial Data?",value=TRUE)),
-                                                tags$div(title = "Minimum number of datapoints that a single carrier must have to be considered for outlier removal",
-                                                         numericInput("threshold_L1_CARRIER","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
-                                                tags$div(title = "Carriers with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
-                                                         numericInput("ratio_cut_L1_CARRIER","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1))
+                                                selectInput("removal_type","Select Type of Removal",c("Customer"="cust","Carrier"="carr","Customer Carrier Combination"="cust_carr")),
+                                                checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
+                                                tags$div(title = "Select customers, carriers, or customer-carrier combinations to remove 
+                                                         from lane data. Customers are sorted by Bias",uiOutput("L1_CLEANUP")),
+                                                tags$div(title = "Attempt to reuse partial data from eliminated?",
+                                                checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=TRUE)),
+                                                tags$div(title = "Minimum number of datapoints that a group must have to be considered for outlier removal",
+                                                numericInput("threshold_L1","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
+                                                tags$div(title = "Groups with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
+                                                numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1))
                                ),
                                conditionalPanel(condition="input.navbar1=='panel1' & input.navbar11=='stop_count_modeling_L1'",
                                                 tags$div(title = "A very high number of splits should generally be avoided", uiOutput("tree_select_nsplit_L1")),tags$div(title = "Adjust model to account for stop count groupings shown in the stop count model tree", uiOutput("tree_adjust_L1"))
@@ -215,16 +208,23 @@ shinyUI(fluidPage(
                                                                                                       h4("Select Total Load Cost"),uiOutput("cost_chooser"),
                                                                                                       h4("Select Origin zip"),uiOutput("origin_chooser"),
                                                                                                       h4("Select Destination zip"),uiOutput("destination_chooser"),
-                                                                                                      h4("Select Load Region"),uiOutput("load_region"),
-                                                                                                      h4("Select Delivery State"),uiOutput("delivery_state")
+                                                                                                      h4("Select Delivery State"),uiOutput("delivery_state"),
+                                                                                                      h4("Select Destination City"),uiOutput("dest_city"),
+                                                                                                      h4("Select Origin Spec Region"),uiOutput("orig_spec_region"),
+                                                                                                      h4("Select Destination Spec Region"),uiOutput("dest_spec_region"),
+                                                                                                      h4("Select Origin Region"),uiOutput("orig_region"),
+                                                                                                      h4("Select Desination Region"),uiOutput("dest_region")
                                                    ),
                                                    column(6,h4("Select Date (Numeric Format)"),uiOutput("date_chooser"),
                                                           h4("Select Load Mileage"),uiOutput("mileage_chooser"),
-                                                          h4("Select Lane Descriptions"),uiOutput("lane_chooser"),
                                                           h4("Select Origin State"),uiOutput("orig_state"),
-                                                          h4("Select Delivery Region"),uiOutput("delivery_region"),
-                                                          h4("Select Customer"),uiOutput("customer"),
-                                                          h4("Select Carrier"),uiOutput("carrier")
+                                                          h4("Select Customer or Customer Code"),uiOutput("customer"),
+                                                          h4("Select Carrier or Carrier Code"),uiOutput("carrier"),
+                                                          h4("Select Origin City"),uiOutput("origin_city"),
+                                                          h4("Select Origin Sub Region"),uiOutput("orig_sub_region"),
+                                                          h4("Select Destination Sub Region"),uiOutput("dest_sub_region"),
+                                                          h4("Select Origin Zone"),uiOutput("orig_zone"),
+                                                          h4("Select Destination Zone"),uiOutput("dest_zone")
                                                    ))),value="data_load"),
                                                    tabPanel("Selected Data",dataTableOutput("selected_data"),value="selected_data"),
                                                    tabPanel("Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot")),
@@ -234,16 +234,24 @@ shinyUI(fluidPage(
                                                                                            fluidRow(column(6,h4("Origin Parameters"),
                                                                                                            h4("Select Origin Zips"), uiOutput("l1_orig_zip"),
                                                                                                            h4("Select Origin States to Include"),uiOutput("l1_orig_state"),
-                                                                                                           h4("Select Load Regions to Include"),uiOutput("l1_load_region")
+                                                                                                           h4("Select Origin Cities to Include"),uiOutput("l1_origin_city"),
+                                                                                                           h4("Select Origin Sub Regions to Include"),uiOutput("l1_orig_sub_region"),
+                                                                                                           h4("Select Origin Zones to Include"),uiOutput("l1_orig_zone"),
+                                                                                                           h4("Select Origin Specification Regions to Include"),uiOutput("l1_orig_spec_region"),
+                                                                                                           h4("Select Origin Regions to Include"),uiOutput("l1_orig_region")
+                                                                                                           
                                                    ),
                                                    column(6,h4("Destination Parameters"),
                                                           h4("Select Destination Zips"), uiOutput("l1_dest_zip"),
-                                                          h4("Select Delivery States to Include"),uiOutput("l1_delivery_state"),
-                                                          h4("Select Delivery Regions to Include"),uiOutput("l1_delivery_region")
+                                                          h4("Select Destination States to Include"),uiOutput("l1_delivery_state"),
+                                                          h4("Select Destination Cities to Include"),uiOutput("l1_dest_city"),
+                                                          h4("Select Destination Sub Regions to Include"),uiOutput("l1_dest_sub_region"),
+                                                          h4("Select Destination Zones to Include"),uiOutput("l1_dest_zone"),
+                                                          h4("Select Destination Specification Regions to Include"),uiOutput("l1_dest_spec_region"),
+                                                          h4("Select Destination Regions to Include"),uiOutput("l1_dest_region")
                                                    ))),value="lane_1_construct"),
                                                    tabPanel("Lane 1 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot1")),
-                                                                                        fluidRow(h3("Customer Data to Screen"),dataTableOutput("L1_CUSTOMERS")),
-                                                                                        fluidRow(h3("Carrier Data to Screen"),dataTableOutput("L1_CARRIER")))
+                                                                                        fluidRow(h3("Data to Screen"),dataTableOutput("L1_CUSTOMERS")))
                                                             ,value="outlier1"),
                                                    tabPanel("Lane 1 Stop Count Model",h3("Tree of Optimal Stop Count Effect (smallest stop is reference level)"),plotOutput("stop_cluster_L1"),h3("Cross Validation Error Plot to Identify Optimal Number of Tree Splits"),
                                                             plotOutput("tree_splits_L1"),h3("Data Table of Cluster Results"),dataTableOutput("stop_table_L1"),value="stop_count_modeling_L1"),

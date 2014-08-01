@@ -97,12 +97,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$lane_chooser<-renderUI({
-    chooserInput("lane_choices", "Available", "Selected",
-                 choices(), NULL, size = 10, multiple = TRUE
-    )
-    
-  })
+
   
   output$orig_state<-renderUI({
     chooserInput("orig_state", "Available", "Selected",
@@ -111,12 +106,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$load_region<-renderUI({
-    chooserInput("load_region", "Available", "Selected",
-                 choices()[-13], choices()[13], size = 10, multiple = TRUE
-    )
-    
-  })
+
   
   output$delivery_state<-renderUI({
     chooserInput("delivery_state", "Available", "Selected",
@@ -125,12 +115,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$delivery_region<-renderUI({
-    chooserInput("delivery_region", "Available", "Selected",
-                 choices()[-15], choices()[15], size = 10, multiple = TRUE
-    )
-    
-  })
+
   
   output$customer<-renderUI({
     chooserInput("customer", "Available", "Selected",
@@ -145,6 +130,79 @@ shinyServer(function(input, output, session) { # server is defined within these 
     )
     
   })
+  
+  #######
+  output$origin_city<-renderUI({
+    chooserInput("origin_city", "Available", "Selected",
+                 choices()[-8], choices()[8], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$dest_city<-renderUI({
+    chooserInput("dest_city", "Available", "Selected",
+                 choices()[-10], choices()[10], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  
+  output$orig_sub_region<-renderUI({
+    chooserInput("orig_sub_region", "Available", "Selected",
+                 choices()[-12], choices()[12], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$orig_spec_region<-renderUI({
+    chooserInput("orig_spec_region", "Available", "Selected",
+                 choices()[-13], choices()[13], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$dest_sub_region<-renderUI({
+    chooserInput("dest_sub_region", "Available", "Selected",
+                 choices()[-14], choices()[14], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$dest_spec_region<-renderUI({
+    chooserInput("dest_spec_region", "Available", "Selected",
+                 choices()[-15], choices()[15], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$orig_zone<-renderUI({
+    chooserInput("orig_zone", "Available", "Selected",
+                 choices()[-16], choices()[16], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$orig_region<-renderUI({
+    chooserInput("orig_region", "Available", "Selected",
+                 choices()[-17], choices()[17], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$dest_zone<-renderUI({
+    chooserInput("dest_zone", "Available", "Selected",
+                 choices()[-18], choices()[18], size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$dest_region<-renderUI({
+    chooserInput("dest_region", "Available", "Selected",
+                 choices()[-19], choices()[19], size = 10, multiple = TRUE
+    )
+    
+  })
+  
   
   output$date<-renderUI({
     a=min(CHR()$Date)
@@ -268,19 +326,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_lane_desc<-renderUI({
-    dat<-FIL()$Lane
-    dest<-unique(dat)
-    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
-    selected <- c()
-    if (!is.null(Read_Settings()[["l1_lane_desc"]])){
-      selected <- dest[which(dest%in%Read_Settings()[["l1_lane_desc"]][["right"]])]
-      dest <- dest[which(!dest%in%Read_Settings()[["l1_lane_desc"]][["right"]])]}
-    chooserInput("l1_lane_desc", "Available", "Selected",
-                 dest, selected, size = 10, multiple = TRUE
-    )
-    
-  })
+
   
   output$l1_orig_state<-renderUI({
     dat<-FIL()$Orig_State
@@ -296,19 +342,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_load_region<-renderUI({
-    dat<-FIL()$Load_Region
-    dest<-unique(dat)
-    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
-    selected <- c()
-    if (!is.null(Read_Settings()[["l1_load_region"]])){
-      selected <- dest[which(dest%in%Read_Settings()[["l1_load_region"]][["right"]])]
-      dest <- dest[which(!dest%in%Read_Settings()[["l1_load_region"]][["right"]])]}
-    chooserInput("l1_load_region", "Available", "Selected",
-                 dest, selected, size = 10, multiple = TRUE
-    )
-    
-  })
+
   
   output$l1_delivery_state<-renderUI({
     dat<-FIL()$Delivery_State
@@ -324,19 +358,151 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_delivery_region<-renderUI({
-    dat<-FIL()$Delivery_Region
+  
+  #######
+  
+  output$l1_origin_city<-renderUI({
+    dat<-FIL()$Origin_City
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
     selected <- c()
-    if (!is.null(Read_Settings()[["l1_delivery_region"]])){
-      selected <- dest[which(dest%in%Read_Settings()[["l1_delivery_region"]][["right"]])]
-      dest <- dest[which(!dest%in%Read_Settings()[["l1_delivery_region"]][["right"]])]}
-    chooserInput("l1_delivery_region", "Available", "Selected",
+    if (!is.null(Read_Settings()[["l1_origin_city"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_origin_city"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_origin_city"]][["right"]])]}
+    chooserInput("l1_origin_city", "Available", "Selected",
                  dest, selected, size = 10, multiple = TRUE
     )
     
   })
+  
+  output$l1_orig_sub_region<-renderUI({
+    dat<-FIL()$Origin_Sub_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_orig_sub_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_orig_sub_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_orig_sub_region"]][["right"]])]}
+    chooserInput("l1_orig_sub_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  
+  output$l1_dest_sub_region<-renderUI({
+    dat<-FIL()$Destination_Sub_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_dest_sub_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_dest_sub_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_dest_sub_region"]][["right"]])]}
+    chooserInput("l1_dest_sub_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$l1_orig_zone<-renderUI({
+    dat<-FIL()$Origin_Zone
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_orig_zone"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_orig_zone"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_orig_zone"]][["right"]])]}
+    chooserInput("l1_orig_zone", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+
+  output$l1_dest_zone<-renderUI({
+    dat<-FIL()$Destination_Zone
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_dest_zone"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_dest_zone"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_dest_zone"]][["right"]])]}
+    chooserInput("l1_dest_zone", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$l1_dest_city<-renderUI({
+    dat<-FIL()$Destination_City
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_dest_city"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_dest_city"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_dest_city"]][["right"]])]}
+    chooserInput("l1_dest_city", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+
+  output$l1_orig_spec_region<-renderUI({
+    dat<-FIL()$Origin_Spec_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_orig_spec_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_orig_spec_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_orig_spec_region"]][["right"]])]}
+    chooserInput("l1_orig_spec_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$l1_dest_spec_region<-renderUI({
+    dat<-FIL()$Destination_Spec_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_dest_spec_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_dest_spec_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_dest_spec_region"]][["right"]])]}
+    chooserInput("l1_dest_spec_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$l1_orig_region<-renderUI({
+    dat<-FIL()$Origin_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_orig_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_orig_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_orig_region"]][["right"]])]}
+    chooserInput("l1_orig_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+  output$l1_dest_region<-renderUI({
+    dat<-FIL()$Destination_Region
+    dest<-unique(dat)
+    dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
+    selected <- c()
+    if (!is.null(Read_Settings()[["l1_dest_region"]])){
+      selected <- dest[which(dest%in%Read_Settings()[["l1_dest_region"]][["right"]])]
+      dest <- dest[which(!dest%in%Read_Settings()[["l1_dest_region"]][["right"]])]}
+    chooserInput("l1_dest_region", "Available", "Selected",
+                 dest, selected, size = 10, multiple = TRUE
+    )
+    
+  })
+  
+
   
   ##Lane 1 Outlier Removal UI
   #browser()
@@ -1901,13 +2067,20 @@ CHR<-reactive({
     Total_Mileage=Data()[,colnames(Data()) %in% input$mileage$right],
     Destination_Zip=Data()[,colnames(Data()) %in% input$destination$right],
     Origin_Zip=Data()[,colnames(Data()) %in% input$origin$right],
-    Lane=Data()[,colnames(Data()) %in% input$lane_choices$right],
     Orig_State=Data()[,colnames(Data()) %in% input$orig_state$right],
-    Load_Region=Data()[,colnames(Data()) %in% input$load_region$right],
     Delivery_State=Data()[,colnames(Data()) %in% input$delivery_state$right],
-    Delivery_Region=Data()[,colnames(Data()) %in% input$delivery_region$right],
     Customer=Data()[,colnames(Data()) %in% input$customer$right],
-    Carrier=Data()[,colnames(Data()) %in% input$carrier$right])
+    Carrier=Data()[,colnames(Data()) %in% input$carrier$right],
+    Origin_City=Data()[,colnames(Data()) %in% input$origin_city$right],
+    Origin_Sub_Region=Data()[,colnames(Data()) %in% input$orig_sub_region$right],
+    Destination_Sub_Region=Data()[,colnames(Data()) %in% input$dest_sub_region$right],
+    Origin_Zone=Data()[,colnames(Data()) %in% input$orig_zone$right],
+    Destination_Zone=Data()[,colnames(Data()) %in% input$dest_zone$right],
+    Destination_City=Data()[,colnames(Data()) %in% input$dest_city$right],
+    Origin_Spec_Region=Data()[,colnames(Data()) %in% input$orig_spec_region$right],
+    Destination_Spec_Region=Data()[,colnames(Data()) %in% input$dest_spec_region$right],
+    Origin_Region=Data()[,colnames(Data()) %in% input$orig_region$right],
+    Destination_Region=Data()[,colnames(Data()) %in% input$dest_region$right])
   CHR$Date<-as.POSIXlt((CHR$Date-1)*24*60*60,origin="1900-01-01")
   CHR$Date<-format(CHR$Date,format="%m/%d/%Y")
   CHR$Date<-as.Date(CHR$Date,format="%m/%d/%Y")
@@ -1944,14 +2117,28 @@ FIL<-reactive({
 L1RAW<-reactive({
   a=FIL()$Origin_Zip %in% as.numeric(input$l1_orig_zip$right) 
   b=FIL()$Destination_Zip %in% as.numeric(input$l1_dest_zip$right)
-  #c=FIL()$Lane %in% input$l1_lane_desc$right
-  d=FIL()$Orig_State %in% input$l1_orig_state$right
-  e=FIL()$Load_Region %in% input$l1_load_region$right
-  f=FIL()$Delivery_State %in% input$l1_delivery_state$right
-  g=FIL()$Delivery_Region %in% input$l1_delivery_region$right
-  h=FIL()$Stop_Count %in% as.numeric(input$l1_stop_ct$right)
+  c=FIL()$Orig_State %in% input$l1_orig_state$right
+  d=FIL()$Delivery_State %in% input$l1_delivery_state$right
+  e=FIL()$Stop_Count %in% as.numeric(input$l1_stop_ct$right)
   
-  LANE1<-FIL()[ ((a | d | e) & (b | f | g)) & h,]
+  f=FIL()$Origin_City %in% input$l1_origin_city$right
+  g=FIL()$Origin_Sub_Region %in% input$l1_orig_sub_region$right
+  h=FIL()$Destination_Sub_Region %in% input$l1_dest_sub_region$right
+  i=FIL()$Origin_Zone %in% input$l1_orig_zone$right
+  j=FIL()$Destination_Zone %in% input$l1_dest_zone$right
+  k=FIL()$Destination_City %in% input$l1_dest_city$right
+  l=FIL()$Origin_Spec_Region %in% input$l1_orig_spec_region$right
+  m=FIL()$Destination_Spec_Region %in% input$l1_dest_spec_region$right
+  n=FIL()$Origin_Region %in% input$l1_orig_region$right
+  o=FIL()$Destination_Region %in% input$l1_dest_region$right
+  
+  
+  
+  
+  
+  
+  
+  LANE1<-FIL()[ ((a | c | f | g | i | l | n) & (b | d | h | j | k | m | o)) & e,]
   LANE1$Constructed_Lane<-input$lane1_id 
   
   LANE1
@@ -1985,7 +2172,10 @@ VAR_L1<-reactive({
   threshold=input$threshold_L1###number of data points needed to consider removal
   #save(threshold,file="data_pre.RData")###for debugging
   #load("inst/data_pre.RData")###for debugging
-  idx<-table(data$Customer)
+  if(input$removal_type=="cust"){data$Use<-data$Customer}
+  if(input$removal_type=="carr"){data$Use<-data$Carrier}
+  if(input$removal_type=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
+  idx<-table(data$Use)
   idx<-as.data.frame(idx)
   idx<-idx[idx$Freq!=0,]
   
@@ -2001,7 +2191,7 @@ VAR_L1<-reactive({
   idx_e<-idx_e[idx$Freq>=threshold]
   for(i in idx_e){
     print(i)
-    pull<-data$residuals[data$Customer==idx$Var1[i]]
+    pull<-data$residuals[data$Use==idx$Var1[i]]
     idx$l1_bias[i]<-abs(sum(pull^2)/length(pull))
   }
   
@@ -2013,12 +2203,16 @@ VAR_L1<-reactive({
 output$L1_CLEANUP<-renderUI({
   idx<-VAR_L1()[["idx"]]
   choices<-idx$Var1
-  selectizeInput("L1_CLEANUP","Select Customer Data To Remove",choices=choices,multiple=TRUE)
+  selectizeInput("L1_CLEANUP","Select Data To Remove",choices=choices,multiple=TRUE)
 })
 
 
 output$L1_CUSTOMERS<-renderDataTable({
-  VAR_L1()[["idx"]]
+  data<-VAR_L1()[["idx"]]
+  data$Percent<-data$Freq/sum(data$Freq)
+  data$Total_Observations<-sum(data$Freq)
+  data
+  
 })
 
 
@@ -2033,7 +2227,7 @@ SELECT_L1<-reactive({
   #load("inst/data_1.RData")###for debugging
   if (is.null(choices)){return(list(data=data,data_remove=NULL,data_preserve=NULL))}
   if (!salvage){
-    index_data<-data$Customer %in% choices
+    index_data<-data$Use %in% choices
     data_remove<-data[index_data,]
     data<-data[!index_data,]
     return(list(data=data,data_remove=data_remove,data_preserve=NULL))
@@ -2041,7 +2235,7 @@ SELECT_L1<-reactive({
   data_remove<-data.frame()
   data_preserve<-data.frame()
   for (j in 1:length(choices)){
-    index_data<-data$Customer %in% choices[j]
+    index_data<-data$Use %in% choices[j]
     tmp<-data[index_data,]
     #plot(RPM~Date,data=tmp)
     fit<-rpart(RPM~Date_2,data=tmp,
@@ -2089,131 +2283,6 @@ SELECT_L1<-reactive({
     #points(RPM~Date,data=tmp[!remove,],col="black",pch=19)
   }
   
-  
-  list(data=data,data_remove=data_remove,data_preserve=data_preserve)
-  
-})
-
-
-
-
-VAR_L1_CARRIER<-reactive({
-  data<-SELECT_L1()[["data"]]
-  if(is.null(SELECT_L1())){return(NULL)}
-  threshold=input$threshold_L1_CARRIER###number of data points needed to consider removal
-  #save(threshold,file="data_pre.RData")###for debugging
-  #load("inst/data_pre.RData")###for debugging
-  idx<-table(data$Carrier)
-  idx<-as.data.frame(idx)
-  idx<-idx[idx$Freq!=0,]
-  
-  
-  data$days=as.numeric(format(data$Date,"%j"))
-  data$Date_2<-as.numeric(data$Date)
-  adjust_fit<-gam(RPM~s(Date_2,sp=1000)+s(days,bs="cc"),data=data,gamma=1.4)
-  data$residuals<-residuals(adjust_fit)
-  comp_var<-sd(data$residuals)
-  
-  idx$l1_bias<-NA###looking for bias turned out to be the best methodology
-  idx_e<-1:nrow(idx)
-  idx_e<-idx_e[idx$Freq>=threshold]
-  for(i in idx_e){
-    print(i)
-    pull<-data$residuals[data$Carrier==idx$Var1[i]]
-    idx$l1_bias[i]<-abs(sum(pull^2)/length(pull))
-  }
-  
-  
-  idx<-idx[order(idx$l1_bias,decreasing = T),]###look for bias where data isn't centered
-  list(idx=idx,data=data,comp_var=comp_var)
-})
-
-output$L1_CLEANUP_CARRIER<-renderUI({
-  idx<-VAR_L1_CARRIER()[["idx"]]
-  choices<-idx$Var1
-  selectizeInput("L1_CLEANUP_CARRIER","Select Carrier Data To Remove",choices=choices,multiple=TRUE)
-})
-
-
-output$L1_CARRIER<-renderDataTable({
-  VAR_L1_CARRIER()[["idx"]]
-})
-
-
-SELECT_L1_CARRIER<-reactive({
-  data<-VAR_L1_CARRIER()[["data"]]
-  idx<-VAR_L1_CARRIER()[["idx"]]
-  comp_var<-VAR_L1_CARRIER()[["comp_var"]]
-  data_remove_pst<-SELECT_L1()[["data_remove"]]
-  data_preserve_pst<-SELECT_L1()[["data_preserve"]]
-  choices<-input$L1_CLEANUP_CARRIER
-  ratio_cut<-input$ratio_cut_L1_CARRIER###this will let you identify the data to pull
-  salvage=input$salvage_L1_CARRIER
-  #save(data,idx,comp_var,choices,ratio_cut,salvage,file="data_1.RData")###for debugging
-  #load("inst/data_1.RData")###for debugging
-  if (is.null(choices)){
-    data_remove<-data_remove_pst
-    data_preserve<-data_preserve_pst
-    return(list(data=data,data_remove=data_remove,data_preserve=data_preserve))}
-  if (!salvage){
-    index_data<-data$Carrier %in% choices
-    data_remove<-data[index_data,]
-    data<-data[!index_data,]
-    return(list(data=data,data_remove=data_remove,data_preserve=NULL))
-  }
-  data_remove<-data.frame()
-  data_preserve<-data.frame()
-  for (j in 1:length(choices)){
-    index_data<-data$Carrier %in% choices[j]
-    tmp<-data[index_data,]
-    #plot(RPM~Date,data=tmp)
-    fit<-rpart(RPM~Date_2,data=tmp,
-               control=rpart.control(xval=10,minbucket=10,cp=0))
-    select<-printcp(fit)
-    upper_bound=select[,"xerror"]+select[,"xstd"]
-    take<-numeric(length(upper_bound))
-    take[1]=1
-    for(i in 2:length(upper_bound)){
-      pp<-min(upper_bound[1:i])-select[1:(i-1),"xerror"]
-      take[i]<-all(pp<=0)
-    }
-    grab<-1:nrow(select)
-    grab<-max(grab[take==1])
-    cp_min<-select[grab,"CP"]
-    tree<-prune(fit,cp=cp_min)
-    #   prp(tree,type=4,extra=1,tweak=1.0,branch=1,fallen.leaves=F,
-    #       uniform=T,Margin=0,digits=3,varlen=0)
-    
-    
-    levels<-factor(predict(tree))
-    levels<-factor(as.numeric(levels))
-    levels<-as.numeric(levels)
-    for (i in unique(levels)){
-      q_dat<-tmp$RPM[levels==i]
-      out<-kmeans(q_dat,2)
-      levels[levels==i]=out$cluster+max(levels)
-    }
-    
-    levels<-factor(levels)
-    levels(levels)<-1:length(levels(levels))
-    variance_groups<-numeric(length(levels(levels)))
-    for (i in levels(levels)){
-      variance_groups[as.numeric(i)]<-sd(tmp$RPM[levels==i])
-    }
-    
-    ratio<-comp_var/variance_groups
-    kill<-(ratio>=ratio_cut)
-    remove<-levels %in% levels(levels)[kill]
-    index_data[index_data==TRUE]<-remove
-    data<-data[!index_data,]
-    data_remove<-rbind(data_remove,tmp[remove,])
-    data_preserve<-rbind(data_preserve,tmp[!remove,])
-    #plot(RPM~Date,data=tmp[remove,],col="red",pch=19)
-    #points(RPM~Date,data=tmp[!remove,],col="black",pch=19)
-  }
-  
-  data_remove<-rbind(data_remove,data_remove_pst)
-  data_preserve<-rbind(data_preserve,data_preserve_pst)
   
   list(data=data,data_remove=data_remove,data_preserve=data_preserve)
   
@@ -2223,7 +2292,7 @@ SELECT_L1_CARRIER<-reactive({
 
 
 CLUSTER_PRE_L1<-reactive({
-  data<-SELECT_L1_CARRIER()[["data"]]
+  data<-SELECT_L1()[["data"]]
   data$days=as.numeric(format(data$Date,"%j"))
   data$Date<-as.numeric(data$Date)
   adjust_fit<-gam(RPM~s(Date,sp=1000)+s(days,bs="cc"),data=data)
@@ -2324,7 +2393,7 @@ output$stop_table_L1<-renderDataTable({
 })
 
 L1_adjust<-reactive({
-  L1<-SELECT_L1_CARRIER()[["data"]]
+  L1<-SELECT_L1()[["data"]]
   if(input$tree_adjust_L1==TRUE){
     tree<-CLUSTER_L1()[["tree"]]
     effect<-predict(tree,L1)
@@ -3822,17 +3891,14 @@ output$stop_table1 <- renderUI({
   
 })
 
-output$outlier_rpm1<-renderDataTable({
-  SELECT_L1_CARRIER()[["data"]]
-  
-})
+
 
 output$outlier_rpm_plot1<-renderPlot({
-  if(!is.null(SELECT_L1_CARRIER())){
-    dat=SELECT_L1_CARRIER()[["data"]]
-    remove=SELECT_L1_CARRIER()[["data_remove"]]
+  if(!is.null(SELECT_L1())){
+    dat=SELECT_L1()[["data"]]
+    remove=SELECT_L1()[["data_remove"]]
     if (empty(remove)){remove=NULL}
-    preserve=SELECT_L1_CARRIER()[["data_preserve"]]
+    preserve=SELECT_L1()[["data_preserve"]]
     if(empty(preserve)){preserve=NULL}
     dat$series="NonSelected"
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
