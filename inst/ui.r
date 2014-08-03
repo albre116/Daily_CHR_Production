@@ -97,16 +97,16 @@ shinyUI(fluidPage(
                                                 tags$div(title = "Choose upper rate per mile boundary. Defaults to 5.",
                                                          uiOutput("RPM_upper1")),
                                                 
-                                                selectInput("removal_type","Select Type of Removal",c("Customer"="cust","Carrier"="carr","Customer Carrier Combination"="cust_carr")),
-                                                checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE),
+                                                uiOutput("removal_type"),
+                                                uiOutput("remove_selected"),
                                                 tags$div(title = "Select customers, carriers, or customer-carrier combinations to remove 
                                                          from lane data. Customers are sorted by Bias",uiOutput("L1_CLEANUP")),
                                                 tags$div(title = "Attempt to reuse partial data from eliminated?",
-                                                checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=TRUE)),
+                                                uiOutput("salvage_L1")),
                                                 tags$div(title = "Minimum number of datapoints that a group must have to be considered for outlier removal",
-                                                numericInput("threshold_L1","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)),
+                                                uiOutput("threshold_L1")),
                                                 tags$div(title = "Groups with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
-                                                numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1))
+                                                uiOutput("ratio_cut_L1"))
                                ),
                                conditionalPanel(condition="input.navbar1=='panel1' & input.navbar11=='stop_count_modeling_L1'",
                                                 tags$div(title = "A very high number of splits should generally be avoided", uiOutput("tree_select_nsplit_L1")),tags$div(title = "Adjust model to account for stop count groupings shown in the stop count model tree", uiOutput("tree_adjust_L1"))

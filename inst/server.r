@@ -361,7 +361,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   #######
   
-  output$l1_origin_city<-renderUI({
+  output$l1_origin_city<-renderUI({###NEW###
     dat<-FIL()$Origin_City
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -375,7 +375,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_orig_sub_region<-renderUI({
+  output$l1_orig_sub_region<-renderUI({###NEW###
     dat<-FIL()$Origin_Sub_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -390,7 +390,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   })
   
   
-  output$l1_dest_sub_region<-renderUI({
+  output$l1_dest_sub_region<-renderUI({###NEW###
     dat<-FIL()$Destination_Sub_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -404,7 +404,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_orig_zone<-renderUI({
+  output$l1_orig_zone<-renderUI({###NEW###
     dat<-FIL()$Origin_Zone
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -418,7 +418,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
 
-  output$l1_dest_zone<-renderUI({
+  output$l1_dest_zone<-renderUI({###NEW###
     dat<-FIL()$Destination_Zone
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -432,7 +432,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_dest_city<-renderUI({
+  output$l1_dest_city<-renderUI({###NEW###
     dat<-FIL()$Destination_City
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -446,7 +446,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
 
-  output$l1_orig_spec_region<-renderUI({
+  output$l1_orig_spec_region<-renderUI({###NEW###
     dat<-FIL()$Origin_Spec_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -460,7 +460,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_dest_spec_region<-renderUI({
+  output$l1_dest_spec_region<-renderUI({###NEW###
     dat<-FIL()$Destination_Spec_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -474,7 +474,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_orig_region<-renderUI({
+  output$l1_orig_region<-renderUI({###NEW###
     dat<-FIL()$Origin_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -488,7 +488,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     
   })
   
-  output$l1_dest_region<-renderUI({
+  output$l1_dest_region<-renderUI({###NEW###
     dat<-FIL()$Destination_Region
     dest<-unique(dat)
     dest<-sort(dest)###this removes NA's from the list so we need to add an option in the list for NA's
@@ -2197,7 +2197,7 @@ VAR_L1<-reactive({
   
   
   idx<-idx[order(idx$l1_bias,decreasing = T),]###look for bias where data isn't centered
-  list(idx=idx,data=data,comp_var=comp_var)
+  list(idx=idx,data=data,comp_var=comp_var,model_fit=adjust_fit,x_vals=data$Date)
 })
 
 output$L1_CLEANUP<-renderUI({
@@ -2206,10 +2206,31 @@ output$L1_CLEANUP<-renderUI({
   selectizeInput("L1_CLEANUP","Select Data To Remove",choices=choices,multiple=TRUE)
 })
 
+output$ratio_cut_L1<-renderUI({###NEW###
+  
+numericInput("ratio_cut_L1","Select Ratio of Normal to Observed Variance for Removal",value=3,min=1)
+})
+
+
+output$threshold_L1<-renderUI({###NEW###
+numericInput("threshold_L1","Select Minimum Number of Data Points To Consider in Series",value=10,min=1,step=1)
+})
+
+output$salvage_L1<-renderUI({###NEW###
+checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=FALSE)
+})
+
+output$remove_selected<-renderUI({###NEW###
+checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE)
+})
+
+output$removal_type<-renderUI({###NEW###
+selectInput("removal_type","Select Type of Removal",c("Customer"="cust","Carrier"="carr","Customer Carrier Combination"="cust_carr"))
+})
 
 output$L1_CUSTOMERS<-renderDataTable({
   data<-VAR_L1()[["idx"]]
-  data$Percent<-data$Freq/sum(data$Freq)
+  data$Percent<-round(data$Freq/sum(data$Freq),2)
   data$Total_Observations<-sum(data$Freq)
   data
   
@@ -2220,17 +2241,19 @@ SELECT_L1<-reactive({
   data<-VAR_L1()[["data"]]
   idx<-VAR_L1()[["idx"]]
   comp_var<-VAR_L1()[["comp_var"]]
+  model_fit<-VAR_L1()[["model_fit"]]
+  x_vals<-VAR_L1()[["x_vals"]]
   choices<-input$L1_CLEANUP
   ratio_cut<-input$ratio_cut_L1###this will let you identify the data to pull
   salvage=input$salvage_L1
   #save(data,idx,comp_var,choices,ratio_cut,salvage,file="data_1.RData")###for debugging
   #load("inst/data_1.RData")###for debugging
-  if (is.null(choices)){return(list(data=data,data_remove=NULL,data_preserve=NULL))}
+  if (is.null(choices)){return(list(data=data,data_remove=NULL,data_preserve=NULL,model_fit=model_fit,x_vals=x_vals))}
   if (!salvage){
     index_data<-data$Use %in% choices
     data_remove<-data[index_data,]
     data<-data[!index_data,]
-    return(list(data=data,data_remove=data_remove,data_preserve=NULL))
+    return(list(data=data,data_remove=data_remove,data_preserve=NULL,model_fit=model_fit,x_vals=x_vals))
   }
   data_remove<-data.frame()
   data_preserve<-data.frame()
@@ -2284,7 +2307,7 @@ SELECT_L1<-reactive({
   }
   
   
-  list(data=data,data_remove=data_remove,data_preserve=data_preserve)
+  list(data=data,data_remove=data_remove,data_preserve=data_preserve,model_fit=model_fit,x_vals=x_vals)
   
 })
 
@@ -3896,53 +3919,61 @@ output$stop_table1 <- renderUI({
 output$outlier_rpm_plot1<-renderPlot({
   if(!is.null(SELECT_L1())){
     dat=SELECT_L1()[["data"]]
+    model_fit=SELECT_L1()[["model_fit"]]
+    x_vals=SELECT_L1()[["x_vals"]]
     remove=SELECT_L1()[["data_remove"]]
     if (empty(remove)){remove=NULL}
     preserve=SELECT_L1()[["data_preserve"]]
     if(empty(preserve)){preserve=NULL}
     dat$series="NonSelected"
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-      scale_color_manual(values=c("NonSelected"="blue"))
+      scale_color_manual(values=c("NonSelected"="blue","Model_Average"="black"))
     
     if(!is.null(remove) & is.null(preserve) & !input$remove_selected){
       remove$series="Removed"
       dat<-rbind(dat,remove)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Removed"="red"))
+        scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Model_Average"="black"))
     }
     if(!is.null(preserve) & is.null(remove) & !input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow"))
+        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
     }
     if(!is.null(preserve) & !is.null(remove) & !input$remove_selected){
       remove$series="Removed"
       preserve$series="Kept"
       dat<-rbind(dat,remove,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Kept"="yellow"))
+        scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Kept"="yellow","Model_Average"="black"))
     }
     
     if(!is.null(remove) & is.null(preserve) & input$remove_selected){
       dat<-rbind(dat)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue"))
+        scale_color_manual(values=c("NonSelected"="blue","Model_Average"="black"))
     }
     if(!is.null(preserve) & is.null(remove) & input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow"))
+        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
     }
     if(!is.null(preserve) & !is.null(remove) & input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow"))
+        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
     }
       
-    sp<-sp+ggtitle("RPM by Date after Filtering for Lane 1")
+
+    x_plot=unique(x_vals)
+    y<-unique(predict(model_fit))
+    dat_fit<-data.frame(model_fit=y[order(x_plot)],Date=x_plot[order(x_plot)],series="Model_Average")
+    
+    
+    sp<-sp+ggtitle("RPM by Date after Filtering for Lane 1")+geom_line(data=dat_fit,aes(x=Date,y=model_fit,colour=series))
     print(sp)
   } else{
     return(NULL)}
