@@ -2312,7 +2312,7 @@ SELECT_L1<-reactive({
 })
 
 
-
+####end the filter stuff here
 
 CLUSTER_PRE_L1<-reactive({
   data<-SELECT_L1()[["data"]]
@@ -3926,45 +3926,40 @@ output$outlier_rpm_plot1<-renderPlot({
     preserve=SELECT_L1()[["data_preserve"]]
     if(empty(preserve)){preserve=NULL}
     dat$series="NonSelected"
-    sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-      scale_color_manual(values=c("NonSelected"="blue","Model_Average"="black"))
+    sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
+
     
     if(!is.null(remove) & is.null(preserve) & !input$remove_selected){
       remove$series="Removed"
       dat<-rbind(dat,remove)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
+
     }
     if(!is.null(preserve) & is.null(remove) & !input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     if(!is.null(preserve) & !is.null(remove) & !input$remove_selected){
       remove$series="Removed"
       preserve$series="Kept"
       dat<-rbind(dat,remove,preserve)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Kept"="yellow","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     
     if(!is.null(remove) & is.null(preserve) & input$remove_selected){
       dat<-rbind(dat)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     if(!is.null(preserve) & is.null(remove) & input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     if(!is.null(preserve) & !is.null(remove) & input$remove_selected){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
-      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)+
-        scale_color_manual(values=c("NonSelected"="blue","Kept"="yellow","Model_Average"="black"))
+      sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
       
 
@@ -3973,7 +3968,8 @@ output$outlier_rpm_plot1<-renderPlot({
     dat_fit<-data.frame(model_fit=y[order(x_plot)],Date=x_plot[order(x_plot)],series="Model_Average")
     
     
-    sp<-sp+ggtitle("RPM by Date after Filtering for Lane 1")+geom_line(data=dat_fit,aes(x=Date,y=model_fit,colour=series))
+    sp<-sp+ggtitle("RPM by Date after Filtering for Lane 1")+geom_line(data=dat_fit,aes(x=Date,y=model_fit,colour=series))+
+      scale_color_manual(values=c("NonSelected"="blue","Removed"="red","Kept"="black","Model_Average"="black"))
     print(sp)
   } else{
     return(NULL)}
