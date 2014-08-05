@@ -130,7 +130,18 @@ shinyUI(fluidPage(
                                                 uiOutput("miles_lower2"),
                                                 uiOutput("miles_upper2"),
                                                 uiOutput("RPM_lower2"),
-                                                uiOutput("RPM_upper2")
+                                                uiOutput("RPM_upper2"),
+                                                
+                                                uiOutput("removal_type_l2"),
+                                                uiOutput("remove_selected_l2"),
+                                                tags$div(title = "Select customers, carriers, or customer-carrier combinations to remove 
+                                                         from lane data. Customers are sorted by Bias",uiOutput("L2_CLEANUP")),
+                                                tags$div(title = "Attempt to reuse partial data from eliminated?",
+                                                         uiOutput("salvage_L2")),
+                                                tags$div(title = "Minimum number of datapoints that a group must have to be considered for outlier removal",
+                                                         uiOutput("threshold_L2")),
+                                                tags$div(title = "Groups with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
+                                                         uiOutput("ratio_cut_L2"))
                                ),
                                conditionalPanel(condition="input.navbar1=='panel1' & input.navbar11=='stop_count_modeling_L2'",
                                                 uiOutput("tree_select_nsplit_L2"),uiOutput("tree_adjust_L2")
@@ -153,7 +164,18 @@ shinyUI(fluidPage(
                                                 uiOutput("miles_lower3"),
                                                 uiOutput("miles_upper3"),
                                                 uiOutput("RPM_lower3"),
-                                                uiOutput("RPM_upper3")
+                                                uiOutput("RPM_upper3"),
+                                                
+                                                uiOutput("removal_type_l3"),
+                                                uiOutput("remove_selected_l3"),
+                                                tags$div(title = "Select customers, carriers, or customer-carrier combinations to remove 
+                                                         from lane data. Customers are sorted by Bias",uiOutput("L3_CLEANUP")),
+                                                tags$div(title = "Attempt to reuse partial data from eliminated?",
+                                                         uiOutput("salvage_L3")),
+                                                tags$div(title = "Minimum number of datapoints that a group must have to be considered for outlier removal",
+                                                         uiOutput("threshold_L3")),
+                                                tags$div(title = "Groups with a variance that is this many times lower than the variance of the entire lane dataset will be considered for removal",
+                                                         uiOutput("ratio_cut_L3"))
                                ),
                                conditionalPanel(condition="input.navbar1=='panel1' & input.navbar11=='stop_count_modeling_L3'",
                                                 uiOutput("tree_select_nsplit_L3"),uiOutput("tree_adjust_L3")
@@ -259,12 +281,21 @@ shinyUI(fluidPage(
                                                                                            fluidRow(column(6,h4("Origin Parameters"),
                                                                                                            h4("Select Origin Zips"), uiOutput("l2_orig_zip"),
                                                                                                            h4("Select Origin States to Include"),uiOutput("l2_orig_state"),
-                                                                                                           h4("Select Load Regions to Include"),uiOutput("l2_load_region")
+                                                                                                           h4("Select Origin Cities to Include"),uiOutput("l2_origin_city"),
+                                                                                                           h4("Select Origin Sub Regions to Include"),uiOutput("l2_orig_sub_region"),
+                                                                                                           h4("Select Origin Zones to Include"),uiOutput("l2_orig_zone"),
+                                                                                                           h4("Select Origin Specification Regions to Include"),uiOutput("l2_orig_spec_region"),
+                                                                                                           h4("Select Origin Regions to Include"),uiOutput("l2_orig_region")
+                                                                                                           
                                                                                            ),
                                                                                            column(6,h4("Destination Parameters"),
                                                                                                   h4("Select Destination Zips"), uiOutput("l2_dest_zip"),
-                                                                                                  h4("Select Delivery States to Include"),uiOutput("l2_delivery_state"),
-                                                                                                  h4("Select Delivery Regions to Include"),uiOutput("l2_delivery_region")
+                                                                                                  h4("Select Destination States to Include"),uiOutput("l2_delivery_state"),
+                                                                                                  h4("Select Destination Cities to Include"),uiOutput("l2_dest_city"),
+                                                                                                  h4("Select Destination Sub Regions to Include"),uiOutput("l2_dest_sub_region"),
+                                                                                                  h4("Select Destination Zones to Include"),uiOutput("l2_dest_zone"),
+                                                                                                  h4("Select Destination Specification Regions to Include"),uiOutput("l2_dest_spec_region"),
+                                                                                                  h4("Select Destination Regions to Include"),uiOutput("l2_dest_region")
                                                                                            ))),value="lane_2_construct"),
                                                    tabPanel("Lane 2 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot2")),
                                                                                                fluidRow(dataTableOutput("outlier_rpm2")))
@@ -275,12 +306,21 @@ shinyUI(fluidPage(
                                                                                            fluidRow(column(6,h4("Origin Parameters"),
                                                                                                            h4("Select Origin Zips"), uiOutput("l3_orig_zip"),
                                                                                                            h4("Select Origin States to Include"),uiOutput("l3_orig_state"),
-                                                                                                           h4("Select Load Regions to Include"),uiOutput("l3_load_region")
+                                                                                                           h4("Select Origin Cities to Include"),uiOutput("l3_origin_city"),
+                                                                                                           h4("Select Origin Sub Regions to Include"),uiOutput("l3_orig_sub_region"),
+                                                                                                           h4("Select Origin Zones to Include"),uiOutput("l3_orig_zone"),
+                                                                                                           h4("Select Origin Specification Regions to Include"),uiOutput("l3_orig_spec_region"),
+                                                                                                           h4("Select Origin Regions to Include"),uiOutput("l3_orig_region")
+                                                                                                           
                                                                                            ),
                                                                                            column(6,h4("Destination Parameters"),
                                                                                                   h4("Select Destination Zips"), uiOutput("l3_dest_zip"),
-                                                                                                  h4("Select Delivery States to Include"),uiOutput("l3_delivery_state"),
-                                                                                                  h4("Select Delivery Regions to Include"),uiOutput("l3_delivery_region")
+                                                                                                  h4("Select Destination States to Include"),uiOutput("l3_delivery_state"),
+                                                                                                  h4("Select Destination Cities to Include"),uiOutput("l3_dest_city"),
+                                                                                                  h4("Select Destination Sub Regions to Include"),uiOutput("l3_dest_sub_region"),
+                                                                                                  h4("Select Destination Zones to Include"),uiOutput("l3_dest_zone"),
+                                                                                                  h4("Select Destination Specification Regions to Include"),uiOutput("l3_dest_spec_region"),
+                                                                                                  h4("Select Destination Regions to Include"),uiOutput("l3_dest_region")
                                                                                            ))),value="lane_3_construct"),
                                                    tabPanel("Lane 3 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot3")),
                                                                                                fluidRow(dataTableOutput("outlier_rpm3")))
