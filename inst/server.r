@@ -44,7 +44,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
       cc[i]=colnames(DATA_I[[dest[i]]])
     }
     selectedcc <- cc
-    if (!is.null(Read_Settings())){
+    if (!is.null(Read_Settings()[["API_choice"]])){
       selectedcc <- cc[which(cc%in%Read_Settings()[["API_choice"]])]}
     #data.frame(Abbreviations=dest,Full_Names=cc)
     checkboxGroupInput("API_choice", "Choose Economic Indicators",
@@ -907,7 +907,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
     if (!is.null(Read_Settings()[["l3_dest_zip"]])){
       selected <- dest[which(comp%in%Read_Settings()[["l3_dest_zip"]][["right"]])]
       dest <- dest[which(!comp%in%Read_Settings()[["l3_dest_zip"]][["right"]])]}
-    chooserInput("l2_dest_zip", "Available", "Selected",
+    chooserInput("l3_dest_zip", "Available", "Selected",
                  dest, selected, size = 10, multiple = TRUE
     )
     
@@ -1518,6 +1518,16 @@ output$load_model <- renderUI({
       saved_settings$l1_dest_zip = NULL
       saved_settings$l1_delivery_state = NULL
       saved_settings$l1_delivery_region = NULL
+      saved_settings$l1_origin_city = NULL
+      saved_settings$l1_orig_sub_region = NULL
+      saved_settings$l1_dest_sub_region = NULL
+      saved_settings$l1_orig_zone = NULL
+      saved_settings$l1_dest_zone = NULL
+      saved_settings$l1_dest_city = NULL
+      saved_settings$l1_orig_spec_region = NULL
+      saved_settings$l1_dest_spec_region = NULL
+      saved_settings$l1_orig_region = NULL
+      saved_settings$l1_dest_region = NULL
       
       saved_settings$cost_lower1 = NULL
       saved_settings$cost_upper1 = NULL
@@ -1526,7 +1536,8 @@ output$load_model <- renderUI({
       saved_settings$RPM_lower1 = NULL
       saved_settings$RPM_upper1 = NULL
       saved_settings$L1_CLEANUP = NULL
-      saved_settings$remove_selected = NULL
+      saved_settings$remove_selected_l1 = NULL
+      saved_settings$removal_type_l1 = NULL
       saved_settings$salvage_L1 = NULL
       saved_settings$threshold_L1 = NULL
       saved_settings$ratio_cut_L1 = NULL
@@ -1542,6 +1553,16 @@ output$load_model <- renderUI({
       saved_settings$l2_dest_zip = NULL
       saved_settings$l2_delivery_state = NULL
       saved_settings$l2_delivery_region = NULL
+      saved_settings$l2_origin_city = NULL
+      saved_settings$l2_orig_sub_region = NULL
+      saved_settings$l2_dest_sub_region = NULL
+      saved_settings$l2_orig_zone = NULL
+      saved_settings$l2_dest_zone = NULL
+      saved_settings$l2_dest_city = NULL
+      saved_settings$l2_orig_spec_region = NULL
+      saved_settings$l2_dest_spec_region = NULL
+      saved_settings$l2_orig_region = NULL
+      saved_settings$l2_dest_region = NULL
       
       saved_settings$cost_lower2 = NULL
       saved_settings$cost_upper2 = NULL
@@ -1550,6 +1571,8 @@ output$load_model <- renderUI({
       saved_settings$RPM_lower2 = NULL
       saved_settings$RPM_upper2 = NULL
       saved_settings$L2_CLEANUP = NULL
+      saved_settings$remove_selected_l2 = NULL
+      saved_settings$removal_type_l2 = NULL
       saved_settings$salvage_L2 = NULL
       saved_settings$threshold_L2 = NULL
       saved_settings$ratio_cut_L2 = NULL
@@ -1565,6 +1588,16 @@ output$load_model <- renderUI({
       saved_settings$l3_dest_zip = NULL
       saved_settings$l3_delivery_state = NULL
       saved_settings$l3_delivery_region = NULL
+      saved_settings$l3_origin_city = NULL
+      saved_settings$l3_orig_sub_region = NULL
+      saved_settings$l3_dest_sub_region = NULL
+      saved_settings$l3_orig_zone = NULL
+      saved_settings$l3_dest_zone = NULL
+      saved_settings$l3_dest_city = NULL
+      saved_settings$l3_orig_spec_region = NULL
+      saved_settings$l3_dest_spec_region = NULL
+      saved_settings$l3_orig_region = NULL
+      saved_settings$l3_dest_region = NULL
       
       saved_settings$cost_lower3 = NULL
       saved_settings$cost_upper3 = NULL
@@ -1573,6 +1606,8 @@ output$load_model <- renderUI({
       saved_settings$RPM_lower3 = NULL
       saved_settings$RPM_upper3 = NULL
       saved_settings$L3_CLEANUP = NULL
+      saved_settings$remove_selected_l3 = NULL
+      saved_settings$removal_type_l3 = NULL
       saved_settings$salvage_L3 = NULL
       saved_settings$threshold_L3 = NULL
       saved_settings$ratio_cut_L3 = NULL
@@ -1629,10 +1664,12 @@ output$load_model <- renderUI({
     updateNumericInput(session, inputId= "threshold_L2", value = Read_Settings()[["threshold_L2"]])
     updateNumericInput(session, inputId= "threshold_L3", value = Read_Settings()[["threshold_L3"]])
     updateNumericInput(session, inputId= "ratio_cut_L1", value = Read_Settings()[["ratio_cut_L1"]])
-    updateCheckboxInput(session, inputId= "remove_selected", value = Read_Settings()[["ratio_cut_L1"]])
     updateNumericInput(session, inputId= "ratio_cut_L2", value = Read_Settings()[["ratio_cut_L2"]])
     updateNumericInput(session, inputId= "ratio_cut_L3", value = Read_Settings()[["ratio_cut_L3"]])
     updateSelectInput(session, inputId="lanes_choice", selected = Read_Settings()[["lanes_choice"]])
+    updateSelectInput(session, inputId="removal_type_l1", selected = Read_Settings()[["removal_type_l1"]])
+    updateSelectInput(session, inputId="removal_type_l2", selected = Read_Settings()[["removal_type_l2"]])
+    updateSelectInput(session, inputId="removal_type_l3", selected = Read_Settings()[["removal_type_l3"]])
     updateCheckboxInput(session, inputId="interaction", value = Read_Settings()[["interaction"]])
     updateCheckboxInput(session, inputId="seasonality", value = Read_Settings()[["seasonality"]])
     updateCheckboxInput(session, inputId="linear", value = Read_Settings()[["linear"]])
@@ -1643,6 +1680,9 @@ output$load_model <- renderUI({
     updateCheckboxInput(session, inputId="salvage_L1", value = Read_Settings()[["salvage_L1"]])
     updateCheckboxInput(session, inputId="salvage_L2", value = Read_Settings()[["salvage_L2"]])
     updateCheckboxInput(session, inputId="salvage_L3", value = Read_Settings()[["salvage_L3"]])
+    updateCheckboxInput(session, inputId= "remove_selected_l1", value = Read_Settings()[["remove_selected_l1"]])
+    updateCheckboxInput(session, inputId= "remove_selected_l2", value = Read_Settings()[["remove_selected_l2"]])
+    updateCheckboxInput(session, inputId= "remove_selected_l3", value = Read_Settings()[["remove_selected_l3"]])
     updateTextInput(session, inputId= "lane1_id", value = Read_Settings()[["lane1_id"]])
     updateTextInput(session, inputId= "lane2_id", value = Read_Settings()[["lane2_id"]])
     updateTextInput(session, inputId= "lane3_id", value = Read_Settings()[["lane3_id"]])
@@ -2379,9 +2419,9 @@ VAR_L1<-reactive({
   threshold=input$threshold_L1###number of data points needed to consider removal
   #save(threshold,file="data_pre.RData")###for debugging
   #load("inst/data_pre.RData")###for debugging
-  if(input$removal_type=="cust"){data$Use<-data$Customer}
-  if(input$removal_type=="carr"){data$Use<-data$Carrier}
-  if(input$removal_type=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
+  if(input$removal_type_l1=="cust"){data$Use<-data$Customer}
+  if(input$removal_type_l1=="carr"){data$Use<-data$Carrier}
+  if(input$removal_type_l1=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
   idx<-table(data$Use)
   idx<-as.data.frame(idx)
   idx<-idx[idx$Freq!=0,]
@@ -2410,7 +2450,10 @@ VAR_L1<-reactive({
 output$L1_CLEANUP<-renderUI({
   idx<-VAR_L1()[["idx"]]
   choices<-idx$Var1
-  selectizeInput("L1_CLEANUP","Select Data To Remove",choices=choices,multiple=TRUE)
+  sel= c()
+  if (!is.null(Read_Settings()[["L1_CLEANUP"]])){
+    sel <- choices[which(choices%in%Read_Settings()[["L1_CLEANUP"]])]}
+  selectizeInput("L1_CLEANUP","Select Data To Remove",choices=choices, selected = sel, multiple=TRUE)
 })
 
 output$ratio_cut_L1<-renderUI({###NEW###
@@ -2427,12 +2470,12 @@ output$salvage_L1<-renderUI({###NEW###
 checkboxInput("salvage_L1","Try To Salvage Partial Data?",value=FALSE)
 })
 
-output$remove_selected<-renderUI({###NEW###
-checkboxInput("remove_selected","Remove Eliminated Observations from Plot?",value=FALSE)
+output$remove_selected_l1<-renderUI({###NEW###
+checkboxInput("remove_selected_l1","Remove Eliminated Observations from Plot?",value=FALSE)
 })
 
-output$removal_type<-renderUI({###NEW###
-selectInput("removal_type","Select Type of Removal",c("Customer"="cust","Carrier"="carr","Customer Carrier Combination"="cust_carr"))
+output$removal_type_l1<-renderUI({###NEW###
+selectInput("removal_type_l1","Select Type of Removal",c("Customer"="cust","Carrier"="carr","Customer Carrier Combination"="cust_carr"))
 })
 
 output$L1_CUSTOMERS<-renderDataTable({
@@ -2685,9 +2728,9 @@ VAR_L2<-reactive({
   threshold=input$threshold_L2###number of data points needed to consider removal
   #save(threshold,file="data_pre.RData")###for debugging
   #load("inst/data_pre.RData")###for debugging
-  if(input$removal_type=="cust"){data$Use<-data$Customer}
-  if(input$removal_type=="carr"){data$Use<-data$Carrier}
-  if(input$removal_type=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
+  if(input$removal_type_l2=="cust"){data$Use<-data$Customer}
+  if(input$removal_type_l2=="carr"){data$Use<-data$Carrier}
+  if(input$removal_type_l2=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
   idx<-table(data$Use)
   idx<-as.data.frame(idx)
   idx<-idx[idx$Freq!=0,]
@@ -2716,7 +2759,10 @@ VAR_L2<-reactive({
 output$L2_CLEANUP<-renderUI({
   idx<-VAR_L2()[["idx"]]
   choices<-idx$Var1
-  selectizeInput("L2_CLEANUP","Select Data To Remove",choices=choices,multiple=TRUE)
+  sel=c()
+  if (!is.null(Read_Settings()[["L2_CLEANUP"]])){
+    sel <- choices[which(choices%in%Read_Settings()[["L2_CLEANUP"]])]}
+  selectizeInput("L2_CLEANUP","Select Data To Remove",choices=choices, selected = sel, multiple=TRUE)
 })
 
 output$ratio_cut_L2<-renderUI({###NEW###
@@ -2930,7 +2976,7 @@ SELECT_L2<-reactive({
   })
   
   L2_adjust<-reactive({
-    L1<-L2()
+    L1<-SELECT_L2()[["data"]]
     if(input$tree_adjust_L2==TRUE){
       tree<-CLUSTER_L2()[["tree"]]
       effect<-predict(tree,L1)
@@ -2993,9 +3039,9 @@ VAR_L3<-reactive({
   threshold=input$threshold_L3###number of data points needed to consider removal
   #save(threshold,file="data_pre.RData")###for debugging
   #load("inst/data_pre.RData")###for debugging
-  if(input$removal_type=="cust"){data$Use<-data$Customer}
-  if(input$removal_type=="carr"){data$Use<-data$Carrier}
-  if(input$removal_type=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
+  if(input$removal_type_l3=="cust"){data$Use<-data$Customer}
+  if(input$removal_type_l3=="carr"){data$Use<-data$Carrier}
+  if(input$removal_type_l3=="cust_carr"){data$Use<-paste(data$Customer,data$Carrier)}
   idx<-table(data$Use)
   idx<-as.data.frame(idx)
   idx<-idx[idx$Freq!=0,]
@@ -3024,7 +3070,10 @@ VAR_L3<-reactive({
 output$L3_CLEANUP<-renderUI({
   idx<-VAR_L3()[["idx"]]
   choices<-idx$Var1
-  selectizeInput("L3_CLEANUP","Select Data To Remove",choices=choices,multiple=TRUE)
+  sel=c()
+  if (!is.null(Read_Settings()[["L3_CLEANUP"]])){
+    sel <- choices[which(choices%in%Read_Settings()[["L3_CLEANUP"]])]}
+  selectizeInput("L3_CLEANUP","Select Data To Remove",choices=choices, selected = sel, multiple=TRUE)
 })
 
 output$ratio_cut_L3<-renderUI({###NEW###
@@ -3238,7 +3287,7 @@ SELECT_L3<-reactive({
   })
   
   L3_adjust<-reactive({
-    L1<-L3()
+    L1<-SELECT_L3()[["data"]]
     if(input$tree_adjust_L3==TRUE){
       tree<-CLUSTER_L3()[["tree"]]
       effect<-predict(tree,L1)
@@ -4448,34 +4497,34 @@ output$outlier_rpm_plot1<-renderPlot({
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
 
     
-    if(!is.null(remove) & is.null(preserve) & !input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & !input$remove_selected_l1){
       remove$series="Removed"
       dat<-rbind(dat,remove)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
 
     }
-    if(!is.null(preserve) & is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & !input$remove_selected_l1){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected_l1){
       remove$series="Removed"
       preserve$series="Kept"
       dat<-rbind(dat,remove,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     
-    if(!is.null(remove) & is.null(preserve) & input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & input$remove_selected_l1){
       dat<-rbind(dat)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & input$remove_selected_l1){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & input$remove_selected_l1){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
@@ -4551,34 +4600,34 @@ output$outlier_rpm_plot2<-renderPlot({
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     
     
-    if(!is.null(remove) & is.null(preserve) & !input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & !input$remove_selected_l2){
       remove$series="Removed"
       dat<-rbind(dat,remove)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
       
     }
-    if(!is.null(preserve) & is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & !input$remove_selected_l2){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected_l2){
       remove$series="Removed"
       preserve$series="Kept"
       dat<-rbind(dat,remove,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     
-    if(!is.null(remove) & is.null(preserve) & input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & input$remove_selected_l2){
       dat<-rbind(dat)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & input$remove_selected_l2){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & input$remove_selected_l2){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
@@ -4655,34 +4704,34 @@ output$outlier_rpm_plot3<-renderPlot({
     sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     
     
-    if(!is.null(remove) & is.null(preserve) & !input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & !input$remove_selected_l3){
       remove$series="Removed"
       dat<-rbind(dat,remove)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
       
     }
-    if(!is.null(preserve) & is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & !input$remove_selected_l3){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & !input$remove_selected_l3){
       remove$series="Removed"
       preserve$series="Kept"
       dat<-rbind(dat,remove,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
     
-    if(!is.null(remove) & is.null(preserve) & input$remove_selected){
+    if(!is.null(remove) & is.null(preserve) & input$remove_selected_l3){
       dat<-rbind(dat)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & is.null(remove) & input$remove_selected_l3){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
     }
-    if(!is.null(preserve) & !is.null(remove) & input$remove_selected){
+    if(!is.null(preserve) & !is.null(remove) & input$remove_selected_l3){
       preserve$series="Kept"
       dat<-rbind(dat,preserve)
       sp<-ggplot(dat,aes(x=Date,y=RPM,colour=series))+geom_point(alpha=0.35,size=1)
@@ -4716,9 +4765,16 @@ output$mileagedate<-renderUI({
 
 
 output$mileage_table_current <- renderDataTable({
+  
+  tree_result<-TREE_ADJUST()[["tree_result"]]
+  names<-paste(tree_result$bin_lower,tree_result$bin_upper,sep="-")
   datset <- FINAL()
   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
   idx1<-datset[["Date"]]>=input$mileagedate[1] & datset[["Date"]]<=input$mileagedate[2]
+  if(!is.null(tree_result)){
+    idx2 <- datset[["Stop_Count"]]>=tree_result$bin_lower[as.numeric(input$add_stop_ct)] & datset[["Stop_Count"]]<=tree_result$bin_upper[as.numeric(input$add_stop_ct)]
+    idx1 <- (idx1 & idx2)
+  }
   
   mileage <- datset[["Total_Mileage"]][idx1]
   mileagesum <- summary(mileage)

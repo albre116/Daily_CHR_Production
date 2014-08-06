@@ -97,8 +97,8 @@ shinyUI(fluidPage(
                                                 tags$div(title = "Choose upper rate per mile boundary. Defaults to 5.",
                                                          uiOutput("RPM_upper1")),
                                                 
-                                                uiOutput("removal_type"),
-                                                uiOutput("remove_selected"),
+                                                uiOutput("removal_type_l1"),
+                                                uiOutput("remove_selected_l1"),
                                                 tags$div(title = "Select customers, carriers, or customer-carrier combinations to remove 
                                                          from lane data. Customers are sorted by Bias",uiOutput("L1_CLEANUP")),
                                                 tags$div(title = "Attempt to reuse partial data from eliminated?",
