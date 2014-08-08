@@ -4751,32 +4751,33 @@ output$outlier_rpm_plot3<-renderPlot({
   
 })
 
-output$mileagedate<-renderUI({
-  datset <- FINAL()
-  datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
-  
-  a=min(datset$Date)
-  b=max(datset$Date)
-  out1 <- dateRangeInput("mileagedate", "Date Cutoff Ranges for Mileage Summary:", 
-                         start =a, end =b )
-  if (!is.null(Read_Settings()[["mileagedate"]])) updateDateRangeInput(session, inputId= "mileagedate", start = Read_Settings()[["mileagedate"]][1], end = Read_Settings()[["mileagedate"]][2])
-  return(out1)
-})
+# output$mileagedate<-renderUI({
+#   datset <- FINAL()
+#   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
+#   
+#   a=min(datset$Date)
+#   b=max(datset$Date)
+#   out1 <- dateRangeInput("mileagedate", "Date Cutoff Ranges for Mileage Summary:", 
+#                          start =a, end =b )
+#   if (!is.null(Read_Settings()[["mileagedate"]])) updateDateRangeInput(session, inputId= "mileagedate", start = Read_Settings()[["mileagedate"]][1], end = Read_Settings()[["mileagedate"]][2])
+#   return(out1)
+# })
 
 
 output$mileage_table_current <- renderDataTable({
   
-  tree_result<-TREE_ADJUST()[["tree_result"]]
-  names<-paste(tree_result$bin_lower,tree_result$bin_upper,sep="-")
-  datset <- FINAL()
-  datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
-  idx1<-datset[["Date"]]>=input$mileagedate[1] & datset[["Date"]]<=input$mileagedate[2]
-  if(!is.null(tree_result)){
-    idx2 <- datset[["Stop_Count"]]>=tree_result$bin_lower[as.numeric(input$add_stop_ct)] & datset[["Stop_Count"]]<=tree_result$bin_upper[as.numeric(input$add_stop_ct)]
-    idx1 <- (idx1 & idx2)
-  }
+#   tree_result<-TREE_ADJUST()[["tree_result"]]
+#   names<-paste(tree_result$bin_lower,tree_result$bin_upper,sep="-")
+#   datset <- FINAL()
+#   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
+#   idx1<-datset[["Date"]]>=input$mileagedate[1] & datset[["Date"]]<=input$mileagedate[2]
+#   if(!is.null(tree_result)){
+#     idx2 <- datset[["Stop_Count"]]>=tree_result$bin_lower[as.numeric(input$add_stop_ct)] & datset[["Stop_Count"]]<=tree_result$bin_upper[as.numeric(input$add_stop_ct)]
+#     idx1 <- (idx1 & idx2)
+#   }
   
-  mileage <- datset[["Total_Mileage"]][idx1]
+  
+  mileage <- quote_hist()[["allhistmileage"]]
   mileagesum <- summary(mileage)
   out1 <- rbind(mileagesum[1:6])
   colnames(out1) <- names(mileagesum[1:6])
@@ -5103,6 +5104,12 @@ quote_hist<-reactive({
   vol_vals<-user_integ_vals()[["vol_vals"]]
   datset <- FINAL()
   datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]###this is needed with multiple lanes constructed to pull the response
+  tree_result<-TREE_ADJUST()[["tree_result"]]
+  if(!is.null(tree_result)){
+    idx11 <- datset[["Stop_Count"]]>=tree_result$bin_lower[as.numeric(input$add_stop_ct)] & datset[["Stop_Count"]]<=tree_result$bin_upper[as.numeric(input$add_stop_ct)]
+    datset <- datset[idx11,]
+  }
+  
   datevect <- smooth_vals[[1]]
   idx<-datevect>=input$quote_date[1] & datevect<=input$quote_date[2]
   userdatesel <- input$matrix_volume[,1] >=input$quote_date[1] & input$matrix_volume[,1]<=input$quote_date[2]
@@ -5135,6 +5142,7 @@ quote_hist<-reactive({
   quotetable <- data.frame(c("Mean", CI_labs[2], CI_labs[1]),c(intquote,intquoteUCL,intquoteLCL),c(rateavg,rateavgUCL,rateavgLCL),c(volavg,NA,NA), c(NA,NA,NA), c(startdate, startdate, startdate), c(enddate, enddate, enddate), stringsAsFactors = FALSE)
   colnames(quotetable) <- c("Value Type", "Volume Weighted RPM", "Rate per Mile", "Volume", "Average Total Mileage", "Start Date", "End Date")
   
+  allhistmileage <- c()
   startdates <- c(as.POSIXlt(input$quote_date[[1]]), as.POSIXlt(input$quote_date[[2]]))
   datarange <- c(as.POSIXlt(min(smooth_vals[[1]])), as.POSIXlt(max(smooth_vals[[1]])))
   histdates <- c((datarange[2]$year - startdates[2]$year):(datarange[1]$year- startdates[1]$year))
@@ -5155,6 +5163,7 @@ quote_hist<-reactive({
           smooth_vals_short <- smooth_vals[idx,]
           vol_vals_short <- vol_vals[idx,]
           mileagevect <- datset[["Total_Mileage"]][idx1]
+          allhistmileage <- c(allhistmileage, mileagevect)
           
           rpm <- smooth_vals_short[[2]]
           volume <- vol_vals_short[[2]]
@@ -5172,19 +5181,20 @@ quote_hist<-reactive({
     }
   }
   
-  return(quotetable)
+  outs <- structure(list("quotetable"=quotetable, "allhistmileage"=allhistmileage))
+  return(outs)
   
 })
 
 output$quote_final<-renderDataTable({
-  quotetable <- quote_hist()
+  quotetable <- quote_hist()[["quotetable"]]
   return(quotetable)
   
 })
 
 
 output$hist_quote_chart<- renderChart({
-  quotetable <- quote_hist()
+  quotetable <- quote_hist()[["quotetable"]]
   graphset <- rbind(quotetable[1,], quotetable[4:nrow(quotetable),])
   graphset[1,1] <- paste(substr(graphset[1,5],0,4), "Predicted")
   graphset <- graphset[rev(rownames(graphset)),]

@@ -64,7 +64,7 @@ sub1 <- paste0("The table below lists rate and volume summary values for the quo
 ```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
 if(input$report_quote_table == TRUE){
 
-quotetable <- quote_hist()
+quotetable <- quote_hist()[["quotetable"]]
   knitr::kable(quotetable)
 
 }
@@ -209,7 +209,7 @@ sub4 <- paste0("The figure below shows rate and volume summary values for the qu
 ```{r results = 'asis', comment = NA, cache = F,echo=FALSE}
 if(input$report_historic_graph == TRUE){
 
-  quotetable <- quote_hist()
+  quotetable <- quote_hist()[["quotetable"]]
   graphset <- rbind(quotetable[1,], quotetable[4:nrow(quotetable),])
   graphset[1,1] <- paste(substr(graphset[1,5],0,4), "Predicted")
   graphset <- graphset[rev(rownames(graphset)),]

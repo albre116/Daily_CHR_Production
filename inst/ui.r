@@ -358,7 +358,7 @@ shinyUI(fluidPage(
                                                                                                          h4("Graph of Historical and Predicted Values for Quote Period"),
                                                                                                          fluidRow(showOutput("hist_quote_chart","highcharts")),
                                                                                                          h4("Statistical Summary of Total Mileage for Historical Data"),
-                                                                                                         tags$div(title = "Select a date range for the average total mileage summary statistics below", uiOutput("mileagedate")),
+#                                                                                                          tags$div(title = "Select a date range for the average total mileage summary statistics below", uiOutput("mileagedate")),
                                                                                                          fluidRow(dataTableOutput("mileage_table_current")),
                                                                                                          h4("Decision Tree Stop Count (Effect Relative to Chosen Cateogory)"),
                                                                                                          h6("To quote for other stop counts just add the listed effect to the current quote"),
