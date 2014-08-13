@@ -1973,8 +1973,8 @@ output$weather_addresses <- renderUI({
     station_both_data<-list()
     for (i in 1:length(geocode_result)){
       extents_box[[i]]<-unlist(geocode_result[i][[1]]$results[[1]]$geometry$bounds)[c(3,4,1,2)]
-      station_daily[[i]]<-noaa_stations(token=noaakey,extent=extents_box[[i]],datasetid=c('GHCND'),limit=1000)
-      station_normals[[i]]<-noaa_stations(token=noaakey,extent=extents_box[[i]],datasetid=c("NORMAL_DLY"),limit=1000)
+      station_daily[[i]]<-ncdc_stations(token=noaakey,extent=extents_box[[i]],datasetid=c('GHCND'),limit=1000)
+      station_normals[[i]]<-ncdc_stations(token=noaakey,extent=extents_box[[i]],datasetid=c("NORMAL_DLY"),limit=1000)
       idx<-station_daily[[i]]$data$id %in% station_normals[[i]]$data$id
       station_both_data[[i]]<-station_daily[[i]]$data[idx,]
     }
@@ -2127,13 +2127,13 @@ output$weather_addresses <- renderUI({
           STOP=TRUE
         }
         
-        TMP<-noaa(token=noaakey,datasetid='GHCND', stationid =chosen[[i]]$id, startdate = as.character(startdate),
+        TMP<-ncdc(token=noaakey,datasetid='GHCND', stationid =chosen[[i]]$id, startdate = as.character(startdate),
                   enddate = as.character(next_date),datatypeid=c("TMAX","TMIN","PRCP","SNOW"),limit=1000)
         DAILY<-rbind(DAILY,TMP$data)
         startdate=next_date
       }
       
-      TMP<-noaa(token=noaakey,datasetid='NORMAL_DLY', stationid =chosen[[i]]$id, startdate = '2010-01-01',
+      TMP<-ncdc(token=noaakey,datasetid='NORMAL_DLY', stationid =chosen[[i]]$id, startdate = '2010-01-01',
                 enddate = '2011-01-01',limit=1000,datatypeid='DLY-TAVG-NORMAL')
       DAILY_NORMAL<-rbind(DAILY_NORMAL,TMP$data)
     }
