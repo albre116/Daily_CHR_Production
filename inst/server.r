@@ -1219,7 +1219,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   output$backcast_ahead_slider <- renderUI({
     datset <- FINAL()
-    datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]
+    datset<-datset[gsub(" ", "\\.", datset[["Constructed_Lane"]]) %in% gsub(".RPM","", input$response),]
     preddat <- max(datset[["Date"]])
     out1 <- dateInput(inputId="backcast_ahead",
                       label= paste0("Predict from End of Historical Data (", preddat, ") to:"),
@@ -1233,7 +1233,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
   
   pred_length <- reactive({
     datset <- FINAL()
-    datset<-datset[datset[["Constructed_Lane"]] %in% gsub(".RPM","",input$response),]
+    datset<-datset[gsub(" ", "\\.", datset[["Constructed_Lane"]]) %in% gsub(".RPM","", input$response),]
     preddat <- max(datset[["Date"]])
     out <- as.numeric(input$backcast_ahead - preddat)
     return(out)
