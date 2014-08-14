@@ -298,7 +298,7 @@ shinyUI(fluidPage(
                                                                                                   h4("Select Destination Regions to Include"),uiOutput("l2_dest_region")
                                                                                            ))),value="lane_2_construct"),
                                                    tabPanel("Lane 2 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot2")),
-                                                                                               fluidRow(dataTableOutput("outlier_rpm2")))
+                                                                                               fluidRow(dataTableOutput("L2_CUSTOMERS")))
                                                             ,value="outlier2"),
                                                    tabPanel("Lane 2 Stop Count Model",h3("Tree of Optimal Stop Count Effect (smallest stop is reference level)"),plotOutput("stop_cluster_L2"),h3("Cross Validation Error Plot to Identify Optimal Number of Tree Splits"),
                                                             plotOutput("tree_splits_L2"),h3("Data Table of Cluster Results"),dataTableOutput("stop_table_L2"),value="stop_count_modeling_L2"),
@@ -323,7 +323,7 @@ shinyUI(fluidPage(
                                                                                                   h4("Select Destination Regions to Include"),uiOutput("l3_dest_region")
                                                                                            ))),value="lane_3_construct"),
                                                    tabPanel("Lane 3 Outlier Removal",fluidPage(fluidRow(plotOutput("outlier_rpm_plot3")),
-                                                                                               fluidRow(dataTableOutput("outlier_rpm3")))
+                                                                                               fluidRow(dataTableOutput("L3_CUSTOMERS")))
                                                             ,value="outlier3"),
                                                    tabPanel("Lane 3 Stop Count Model",h3("Tree of Optimal Stop Count Effect (smallest stop is reference level)"),plotOutput("stop_cluster_L3"),h3("Cross Validation Error Plot to Identify Optimal Number of Tree Splits"),
                                                             plotOutput("tree_splits_L3"),h3("Data Table of Cluster Results"),dataTableOutput("stop_table_L3"),value="stop_count_modeling_L3"),
