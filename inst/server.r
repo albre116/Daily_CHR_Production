@@ -1245,7 +1245,7 @@ shinyServer(function(input, output, session) { # server is defined within these 
                         label = "Length of Backcast Fit (in days)",
                         min = 1,
                         max = 365,
-                        value = 365,
+                        value = 52,
                         step = 1                
     )
     if (!is.null(Read_Settings()[["backcast_length"]])) updateSliderInput(session, inputId= "backcast_length", value = Read_Settings()[["backcast_length"]])
@@ -2449,7 +2449,7 @@ VAR_L1<-reactive({
 
 output$L1_CLEANUP<-renderUI({
   idx<-VAR_L1()[["idx"]]
-  choices<-idx$Var1
+  choices<-as.character(idx$Var1)
   sel= c()
   if (!is.null(Read_Settings()[["L1_CLEANUP"]])){
     sel <- choices[which(choices%in%Read_Settings()[["L1_CLEANUP"]])]}
@@ -2758,7 +2758,7 @@ VAR_L2<-reactive({
 
 output$L2_CLEANUP<-renderUI({
   idx<-VAR_L2()[["idx"]]
-  choices<-idx$Var1
+  choices<-as.character(idx$Var1)
   sel=c()
   if (!is.null(Read_Settings()[["L2_CLEANUP"]])){
     sel <- choices[which(choices%in%Read_Settings()[["L2_CLEANUP"]])]}
@@ -3069,7 +3069,7 @@ VAR_L3<-reactive({
 
 output$L3_CLEANUP<-renderUI({
   idx<-VAR_L3()[["idx"]]
-  choices<-idx$Var1
+  choices<-as.character(idx$Var1)
   sel=c()
   if (!is.null(Read_Settings()[["L3_CLEANUP"]])){
     sel <- choices[which(choices%in%Read_Settings()[["L3_CLEANUP"]])]}
