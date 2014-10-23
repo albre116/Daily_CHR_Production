@@ -1,5 +1,6 @@
-
-
+---
+output: html_document
+---
 
 ```{r results = 'asis', comment = NA, cache = F,echo=FALSE, fig.width = 12, fig.height = 8}
 ## utility function to add required assets such as CSS and JS libraries
@@ -13,7 +14,8 @@ add_lib_assets <- function(lib, cdn = F, css = NULL) {
     })
 
     scripts <- lapply(assets$jshead, function(script) {
-        sprintf("<script type='text/javascript' src=%s></script>", script)
+        script<-gsub("\"","",script)
+        sprintf("<script type='text/javascript' src='http:%s'></script>", script)
     })
     cat(paste(c(styles, scripts), collapse = "\n"))
 }
@@ -166,7 +168,7 @@ if(length(histdates) > 0){
   theGraph1$series(name = CI_labs[[1]], type = 'line', data = ratelcl, yAxis = 0, turboThreshold = length(ratelcl), marker = list(enabled = FALSE))
   theGraph1$series(name = CI_labs[[2]], type = 'line', data = rateucl, yAxis = 0, turboThreshold = length(rateucl), marker = list(enabled = FALSE))
   
-  theGraph1$show('inline', include_assets = TRUE, cdn = TRUE)
+  theGraph1$show('inline', include_assets = TRUE)
 
 }
 ```
@@ -224,7 +226,7 @@ if(input$report_historic_graph == TRUE){
   theGraph2$series(name = 'Rate', type = 'line', data = as.numeric(graphset[,3]), dashStyle = 'LongDash', yAxis = 0)
   theGraph2$series(name = 'Volume Weighted Average', type = 'line', data = as.numeric(graphset[,2]), yAxis = 0)
 
-  theGraph2$show('inline', include_assets = TRUE, cdn = TRUE)
+  theGraph2$show('inline', include_assets = TRUE)
 
 }
 ```
