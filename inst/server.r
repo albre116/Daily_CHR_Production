@@ -1700,7 +1700,6 @@ output$load_model <- renderUI({
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
-    browser()
     dat<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote, na.strings=c("n/a","XXX"),nrows=-1)
     #dat2<-fread(inFile$datapath, na.strings=c("n/a","XXX"),stringsAsFactors=T)
     idx<-sample(1:nrow(dat),size=floor(input$rand_samp*nrow(dat)/100))
