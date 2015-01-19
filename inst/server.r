@@ -1700,7 +1700,9 @@ output$load_model <- renderUI({
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
-    dat<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote, na.strings=c("n/a","XXX"),nrows=-1)
+    dat<-fread(inFile$datapath, header=input$header, sep=input$sep, na.strings=c("n/a","XXX"),nrows=-1)
+    dat<-as.data.frame(dat)
+    #dat<-read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote, na.strings=c("n/a","XXX"),nrows=-1)
     #dat2<-fread(inFile$datapath, na.strings=c("n/a","XXX"),stringsAsFactors=T)
     idx<-sample(1:nrow(dat),size=floor(input$rand_samp*nrow(dat)/100))
     dat<-dat[idx,]
@@ -2338,6 +2340,7 @@ CHR<-reactive({
     Destination_Spec_Region=Data()[,colnames(Data()) %in% input$dest_spec_region$right],
     Origin_Region=Data()[,colnames(Data()) %in% input$orig_region$right],
     Destination_Region=Data()[,colnames(Data()) %in% input$dest_region$right])
+  
   CHR$Date<-as.POSIXlt((CHR$Date-1)*24*60*60,origin="1900-01-01")
   CHR$Date<-format(CHR$Date,format="%m/%d/%Y")
   CHR$Date<-as.Date(CHR$Date,format="%m/%d/%Y")
